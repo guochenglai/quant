@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "quant"
+version = "0.1.0"
+description = ""
+authors = ["Steven Guo <gcl272633743@163.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.11,<3.12"
+finrl = {git = "https://github.com/AI4Finance-Foundation/FinRL.git"}
+yfinance = "^0.2.55"
+stockstats = "0.5"
+gym = "^0.26.2"
+pandas = "^2.2.3"
+numpy = "^2.2.4"
+matplotlib = "^3.10.1"
+stable-baselines3 = "^2.5.0"
+torch = {version = "^2.2.0", source = "pytorch-cuda"}
+
+[[tool.poetry.source]]
+name = "pytorch-cuda"
+url = "https://download.pytorch.org/whl/cu121"
+priority = "supplemental"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
