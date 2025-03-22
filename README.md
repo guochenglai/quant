@@ -2,6 +2,7 @@
 
 - Chrome
 - Python 3.11.7
+- Install [pipx](https://pipx.pypa.io/stable/installation/)
 - Install [Poetry 1.8.1](https://python-poetry.org/docs/#installation): `pipx install poetry==1.8.1`
 - Install [CUDA 121](https://developer.nvidia.com/cuda-12-1-0-download-archive)
 
