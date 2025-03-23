@@ -1,74 +1,135 @@
-import os
-import pandas as pd
-import numpy as np
 import torch
-from stable_baselines3 import PPO
-from stable_baselines3.common.vec_env import DummyVecEnv
 from finrl.meta.env_stock_trading.env_stocktrading import StockTradingEnv
+from finrl.meta.preprocessor.yahoodownloader import YahooDownloader
+from finrl.meta.preprocessor.preprocessors import FeatureEngineer
+from finrl.config import INDICATORS
+from stable_baselines3 import PPO
 from utils.logging_config import setup_logger
+from stable_baselines3.common.monitor import Monitor
+from stable_baselines3.common.vec_env import DummyVecEnv
 
 # Set up logger
-logger = setup_logger('quant.train_model')
-logger.info("Starting model training process")
+logger = setup_logger('quant.trainmodel')
+logger.info("Starting train model process")
 
-def load_data(file_name="aapl_data.csv"):
-    """Load data from CSV file"""
+
+def config_gpu():
+    """
+    Configure and detect available GPU devices.
+    
+    Returns:
+        str: Device to be used ('cuda' or 'cpu')
+    """
     try:
-        project_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        file_path = os.path.join(project_dir, "data", file_name)
-        logger.info(f"Loading data from {file_path}")
-        data = pd.read_csv(file_path)
-        
-        # Convert all column names to lowercase to match what StockTradingEnv expects
-        data.columns = map(str.lower, data.columns)
-        logger.info(f"Converted column names to lowercase: {list(data.columns)}")
-        
-        # Add 'tic' column required by StockTradingEnv
-        ticker = file_name.split('_')[0].upper()  # Extract ticker from filename (e.g., 'aapl' from 'aapl_data.csv')
-        data['tic'] = ticker
-        
-        logger.info(f"Data loaded successfully with shape: {data.shape}")
-        logger.info(f"Added 'tic' column with value: {ticker}")
-        return data
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        logger.info(f"Using device: {device}")
+        return device
     except Exception as e:
-        logger.error(f"Error loading data: {str(e)}")
+        logger.error(f"Error during GPU configuration: {str(e)}")
+        logger.info("Falling back to CPU")
+        return "cpu"
+
+def download_data(start_date, end_date, ticker_list):
+    """
+    Download stock data using Yahoo Downloader.
+    
+    Args:
+        start_date (str): Start date for historical data
+        end_date (str): End date for historical data
+        ticker_list (list): List of ticker symbols
+        
+    Returns:
+        pandas.DataFrame: Downloaded stock data
+    """
+    try:
+        logger.info(f"Downloading data for {ticker_list} from {start_date} to {end_date}")
+        df = YahooDownloader(
+            start_date=start_date,
+            end_date=end_date,
+            ticker_list=ticker_list
+        ).fetch_data()
+        logger.info(f"Successfully downloaded data with shape: {df.shape}")
+        return df
+    except Exception as e:
+        logger.error(f"Error downloading data: {str(e)}")
         raise
 
-def prepare_environment(data):
-    """Prepare the trading environment"""
-    logger.info("Creating stock trading environment")
+def feature_engineering(df, use_indicators=True, indicator_list=None):
+    """
+    Perform feature engineering on the dataset.
     
-    # Set parameters
-    stock_dimension = 1
-    hmax = 100  # maximum number of shares to trade
-    initial_amount = 1000000
-    
-    # Convert num_stock_shares to NumPy array with explicit dtype
-    num_stock_shares = np.array([0], dtype=np.int32)
-    logger.info(f"num_stock_shares: {num_stock_shares}, type: {type(num_stock_shares)}")
-    
-    buy_cost_pct = 0.001
-    sell_cost_pct = 0.001
-    reward_scaling = 1e-4
-    
-    # Reduce state space to minimum required
-    state_space = 1 + len(data.columns)
-    
-    # Simplify action space
-    action_space = stock_dimension
-    
-    # Ensure we're using columns that actually exist in the data
-    logger.info(f"Available columns in data: {list(data.columns)}")
-    
-    # Use only columns that definitely exist in the data
-    tech_indicator_list = [col for col in ['open', 'high', 'low', 'close', 'volume'] if col in data.columns]
-    logger.info(f"Using technical indicators: {tech_indicator_list}")
-    
-    # Try with basic parameter construction 
+    Args:
+        df (pandas.DataFrame): Stock data
+        use_indicators (bool): Whether to use technical indicators
+        indicator_list (list): List of technical indicators to use
+        
+    Returns:
+        pandas.DataFrame: Processed data with engineered features
+    """
     try:
+        logger.info("Starting feature engineering process")
+        if indicator_list is None:
+            indicator_list = INDICATORS
+            
+        fe = FeatureEngineer(
+            use_technical_indicator=use_indicators,
+            tech_indicator_list=indicator_list
+        )
+        processed_df = fe.preprocess_data(df)
+        logger.info(f"Feature engineering completed. New shape: {processed_df.shape}")
+        return processed_df
+    except Exception as e:
+        logger.error(f"Error during feature engineering: {str(e)}")
+        raise
+
+def create_environment(df, stock_dim=1, hmax=100, initial_amount=1000000,
+                       num_stock_shares=None, buy_cost_pct=None, sell_cost_pct=None,
+                       reward_scaling=1e-4, state_space=None, action_space=None,
+                       tech_indicator_list=None):
+    """
+    Create a stock trading environment for reinforcement learning.
+    
+    Args:
+        df (pandas.DataFrame): Processed stock data
+        stock_dim (int): Number of stocks to trade
+        hmax (int): Maximum number of shares to trade
+        initial_amount (float): Initial investment amount
+        num_stock_shares (list): Initial number of shares for each stock
+        buy_cost_pct (list): Transaction cost percentage for buying
+        sell_cost_pct (list): Transaction cost percentage for selling
+        reward_scaling (float): Scaling factor for rewards
+        state_space (int): Dimension of state space
+        action_space (int): Dimension of action space
+        tech_indicator_list (list): List of technical indicators
+        
+    Returns:
+        StockTradingEnv: Trading environment
+    """
+    try:
+        logger.info("Creating stock trading environment")
+
+        if num_stock_shares is None:
+            num_stock_shares = [0] * stock_dim
+        if buy_cost_pct is None:
+            buy_cost_pct = [0.001] * stock_dim  # Must be a list
+        elif isinstance(buy_cost_pct, float):
+            buy_cost_pct = [buy_cost_pct] * stock_dim
+
+        if sell_cost_pct is None:
+            sell_cost_pct = [0.001] * stock_dim  # Must be a list
+        elif isinstance(sell_cost_pct, float):
+            sell_cost_pct = [sell_cost_pct] * stock_dim
+
+        if tech_indicator_list is None:
+            tech_indicator_list = INDICATORS
+        if state_space is None:
+            state_space = 1 + 2 * stock_dim + len(tech_indicator_list) * stock_dim
+        if action_space is None:
+            action_space = stock_dim
+
         env = StockTradingEnv(
-            df=data.copy(),  # Use a copy to avoid modification issues
-            stock_dim=stock_dimension,
+            df=df,
+            stock_dim=stock_dim,
             hmax=hmax,
             initial_amount=initial_amount,
             num_stock_shares=num_stock_shares,
@@ -79,63 +140,87 @@ def prepare_environment(data):
             action_space=action_space,
             tech_indicator_list=tech_indicator_list
         )
-        
-        # Wrap the environment in a DummyVecEnv as required by Stable-Baselines3
-        env = DummyVecEnv([lambda: env])
-        
-        # Log observation space for debugging
-        logger.info(f"Environment observation space: {env.observation_space}")
-        
+
+        env = DummyVecEnv([lambda: Monitor(env)])
+        logger.info("Environment created and wrapped successfully.")
+        return env
     except Exception as e:
         logger.error(f"Error creating environment: {str(e)}")
-        # Let's examine what's happening
-        import traceback
-        logger.error(f"Traceback: {traceback.format_exc()}")
         raise
-    
-    logger.info(f"Environment created with {stock_dimension} stocks, max shares: {hmax}, initial amount: {initial_amount}")
-    return env
 
-def train_model(env, total_timesteps=10000):
-    """Train the PPO model"""
-    # Explicitly use CPU as recommended for MlpPolicy to avoid warnings
-    device = "cpu"
-    logger.info(f"Training on device: {device} (recommended for MlpPolicy)")
+def train_model(env, device, total_timesteps=10000):
+    """
+    Train a reinforcement learning model.
     
-    # Initialize model
-    logger.info("Initializing PPO model")
-    model = PPO("MlpPolicy", env, verbose=1, device=device)
-    
-    # Train model
-    logger.info(f"Starting training for {total_timesteps} timesteps")
-    model.learn(total_timesteps=total_timesteps)
-    logger.info("Model training completed")
-    
-    return model
-
-def save_model(model, file_path="ppo_trading_model"):
-    """Save the trained model"""
+    Args:
+        env (gym.Env): Trading environment
+        device (str): Device to train on ('cuda' or 'cpu')
+        total_timesteps (int): Total training timesteps
+        
+    Returns:
+        stable_baselines3.PPO: Trained model
+    """
     try:
-        logger.info(f"Saving model to {file_path}")
-        model.save(file_path)
-        logger.info("Model saved successfully")
+        logger.info(f"Starting model training on {device} for {total_timesteps} timesteps")
+        model = PPO("MlpPolicy", env, verbose=1, device=device)
+        model.learn(total_timesteps=total_timesteps)
+        logger.info("Model training completed")
+        return model
+    except Exception as e:
+        logger.error(f"Error during model training: {str(e)}")
+        raise
+
+def save_model(model, path="ppo_trading_model"):
+    """
+    Save the trained model.
+    
+    Args:
+        model: Trained reinforcement learning model
+        path (str): Path to save the model
+        
+    Returns:
+        str: Path where model was saved
+    """
+    try:
+        logger.info(f"Saving model to {path}")
+        model.save(path)
+        logger.info(f"Model successfully saved to {path}")
+        return path
     except Exception as e:
         logger.error(f"Error saving model: {str(e)}")
         raise
 
+def main():
+    """
+    Main function to orchestrate the model training pipeline.
+    """
+    try:
+        # Configure GPU
+        device = config_gpu()
+        
+        # Download data
+        df = download_data(
+            start_date="2015-01-01",
+            end_date="2024-01-01",
+            ticker_list=["AAPL"]
+        )
+        
+        # Feature engineering
+        df = feature_engineering(df)
+        
+        # Create environment
+        stock_env = create_environment(df)
+        
+        # Train model
+        model = train_model(stock_env, device)
+        
+        # Save model
+        save_model(model)
+        
+        logger.info("Pipeline completed successfully")
+    except Exception as e:
+        logger.error(f"Pipeline failed: {str(e)}")
+        raise
+
 if __name__ == "__main__":
-    logger.info("Executing model training script")
-    
-    # Load data
-    data = load_data("aapl_data.csv")
-    
-    # Prepare environment
-    env = prepare_environment(data)
-    
-    # Train model
-    model = train_model(env, total_timesteps=10000)
-    
-    # Save model
-    save_model(model, "ppo_trading_model")
-    
-    logger.info("Training process completed")
+    main()
