@@ -1,4 +1,4 @@
-import torch
+import torch,os
 from finrl.meta.env_stock_trading.env_stocktrading import StockTradingEnv
 from finrl.meta.preprocessor.yahoodownloader import YahooDownloader
 from finrl.meta.preprocessor.preprocessors import FeatureEngineer
@@ -170,7 +170,7 @@ def train_model(env, device, total_timesteps=10000):
         logger.error(f"Error during model training: {str(e)}")
         raise
 
-def save_model(model, path="ppo_trading_model"):
+def save_model(model, model_name="ppo_trading_model"):
     """
     Save the trained model.
     
@@ -182,6 +182,8 @@ def save_model(model, path="ppo_trading_model"):
         str: Path where model was saved
     """
     try:
+        model_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        path = os.path.join(model_dir, "data", model_name)
         logger.info(f"Saving model to {path}")
         model.save(path)
         logger.info(f"Model successfully saved to {path}")
