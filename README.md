@@ -18,3 +18,4 @@
 - Run `poetry run python .\quant\fetch_data.py` to train data
 - Run `poetry run python .\quant\train_model.py` to train data
 - Run `poetry run python .\quant\back_test.py` to test model
+- Run `poetry run python .\quant\fetch_spy500_data.py` to download stock data for all spy company
