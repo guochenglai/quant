@@ -26,9 +26,6 @@ htmlcov/
 .tox/
 .nox/
 
-# CSV files
-*.csv
-
 # Lock files
 *.lock
 Pipfile.lock
