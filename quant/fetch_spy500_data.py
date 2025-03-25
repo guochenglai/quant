@@ -18,7 +18,7 @@ def fetch_and_save_stock_data(ticker, start_date=None, end_date=None):
         project_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         file_path = os.path.join(project_dir, "stock_data", f"{ticker}.csv")
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
-
+        
         if os.path.exists(file_path):
             existing_data = pd.read_csv(file_path, index_col=0, parse_dates=True)
             last_date = pd.to_datetime(existing_data.index[-1]) + timedelta(days=1)
