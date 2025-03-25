@@ -185,7 +185,8 @@ def save_model(model, model_name="ppo_trading_model"):
     """
     try:
         model_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        path = os.path.join(model_dir, "data", model_name)
+        path = os.path.join(model_dir, "model", model_name)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
         logger.info(f"Saving model to {path}")
         model.save(path)
         logger.info(f"Model successfully saved to {path}")
