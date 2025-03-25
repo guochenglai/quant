@@ -57,5 +57,5 @@ venv.bak/
 # *.pth
 
 # Project-specific (uncomment as needed)
-# data/
+data/*
 # results/

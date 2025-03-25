@@ -5,18 +5,10 @@ import pandas as pd
 import yfinance as yf
 from datetime import datetime, timedelta
 from utils.logging_config import setup_logger
-import requests
-
+from utils import get_spy500_tickers
 logger = setup_logger('quant.fetch_sp500_data')
 logger.info("Starting SP500 incremental data fetching process")
 
-def get_sp500_tickers():
-    """Fetch the list of S&P 500 tickers from Wikipedia"""
-    url = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
-    response = requests.get(url, verify=False)
-    tables = pd.read_html(response.text)
-    sp500_table = tables[0]
-    return sp500_table['Symbol'].tolist()
 
 def fetch_and_save_stock_data(ticker, start_date=None, end_date=None):
     """Fetch stock data incrementally and save to CSV"""
@@ -50,7 +42,7 @@ def fetch_and_save_stock_data(ticker, start_date=None, end_date=None):
         logger.error(f"Error fetching/saving data for {ticker}: {str(e)}")
 
 if __name__ == "__main__":
-    tickers = get_sp500_tickers()
+    tickers = get_spy500_tickers()
     logger.info(f"Fetched {len(tickers)} tickers from SP500")
 
     for ticker in tickers:

@@ -7,6 +7,8 @@ from stable_baselines3 import PPO
 from utils.logging_config import setup_logger
 from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.vec_env import DummyVecEnv
+from utils import get_spy500_tickers
+from datetime import datetime, timedelta
 
 # Set up logger
 logger = setup_logger('quant.trainmodel')
@@ -199,12 +201,16 @@ def main():
     try:
         # Configure GPU
         device = config_gpu()
-        
+
+        tickers = get_spy500_tickers()
+        start_date = (datetime.now() - timedelta(days=1*365)).strftime('%Y-%m-%d')
+        end_date = datetime.now().strftime('%Y-%m-%d')
+
         # Download data
         df = download_data(
-            start_date="2015-01-01",
-            end_date="2024-01-01",
-            ticker_list=["AAPL"]
+            start_date=start_date,
+            end_date=end_date,
+            ticker_list=tickers
         )
         
         # Feature engineering
