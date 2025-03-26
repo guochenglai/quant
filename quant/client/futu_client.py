@@ -1,7 +1,7 @@
-from futu import OpenQuoteContext, OpenUSTradeContext, TrdEnv, OrderType, OrderSide, TimeInForce
+from futu import OpenQuoteContext, OpenUSTradeContext, TrdEnv, OrderType, TrdSide, TimeInForce
 import pandas as pd
 from typing import Dict, Any, Optional, Union, List
-from utils.logging_config import setup_logger
+from quant.utils.logging_config import setup_logger
 
 logger = setup_logger('quant.finrl_client')
 
@@ -10,7 +10,7 @@ class FutuClient:
     Client for interacting with Futu's API for data git fetching and trading in US market.
     """
     
-def __init__(self, host: str = "127.0.0.1", port: int = 11111, 
+    def __init__(self, host: str = "127.0.0.1", port: int = 11111, 
                  trade_host: str = "127.0.0.1", trade_port: int = 11111,
                  trade_password: Optional[str] = None, 
                  trd_env: TrdEnv = TrdEnv.REAL):
@@ -32,6 +32,7 @@ def __init__(self, host: str = "127.0.0.1", port: int = 11111,
         self.trade_port = trade_port
         self.trade_password = trade_password
         self.trd_env = trd_env
+        self.logger = logger  # Assign the module-level logger to the instance
         
         # Quote context for data fetching
         self.quote_context = None
@@ -122,7 +123,7 @@ def __init__(self, host: str = "127.0.0.1", port: int = 11111,
             self.logger.error(f"Error fetching data for {ticker}: {e}")
             return pd.DataFrame()
     
-    def place_order(self, ticker: str, quantity: int, price: float, order_side: OrderSide, 
+    def place_order(self, ticker: str, quantity: int, price: float, order_side: TrdSide, 
                     order_type: OrderType = OrderType.NORMAL, time_in_force: TimeInForce = TimeInForce.DAY) -> Dict[str, Any]:
         """
         Place a trade order for a specific US market ticker.
