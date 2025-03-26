@@ -14,7 +14,7 @@ class FutuClient:
     def __init__(self, host: str = "127.0.0.1", port: int = 11111, 
                  trade_host: str = "127.0.0.1", trade_port: int = 11111,
                  trade_password: Optional[str] = None, 
-                 trd_env: TrdEnv = TrdEnv.REAL, logger=None):
+                 trd_env: TrdEnv = TrdEnv.REAL):
         """
         Initialize the Futu client for US market trading.
         
@@ -33,9 +33,6 @@ class FutuClient:
         self.trade_port = trade_port
         self.trade_password = trade_password
         self.trd_env = trd_env
-        
-        # Initialize logger
-        self.logger = logger or logging.getLogger(__name__)
         
         # Quote context for data fetching
         self.quote_context = None

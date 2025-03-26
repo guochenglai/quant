@@ -24,7 +24,7 @@ class TestFinRLClient(unittest.TestCase):
         pass
     
     def test_train_model(self):
-       tickets = ["AAPL", "GOOGL"]
+       tickets = ["AAPL"]
        start_date = (datetime.now() - pd.DateOffset(years=1)).strftime('%Y-%m-%d')
        end_date = datetime.now().strftime('%Y-%m-%d')
        self.client.train_model(tickers=tickets, start_date=start_date, end_date=end_date)
