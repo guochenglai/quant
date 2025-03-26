@@ -24,6 +24,7 @@ backtrader = "^1.9.78.123"
 empyrical = "^0.5.5"
 alpaca-trade-api = "^3.2.0"
 futu-api = "^9.1.5108"
+pandas-market-calendars = "^4.6.1"
 
 [build-system]
 requires = ["poetry-core"]

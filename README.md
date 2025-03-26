@@ -6,6 +6,14 @@
 - Install [Poetry 1.8.1](https://python-poetry.org/docs/#installation): `pipx install poetry==1.8.1`
 - Install [CUDA 121](https://developer.nvidia.com/cuda-12-1-0-download-archive)
 
+
+<h2 align="center"> What did we support </h2>
+
+- Trade with Futu
+- Train model with [FinRL](https://github.com/AI4Finance-Foundation/FinRL.git)
+
+
+
 <h2 align="center"> Init project </h2>
 
 - Go to the root of this project
@@ -16,10 +24,8 @@
 
 - Note FutuD is for develop usage, it is different from Futu Client, but the account is same with Futu Client
 - Download and install [FutuD](https://www.futunn.com/en/download/OpenAPI)
-- Open FutuD setup the listen port to: 33333
+- Open FutuD setup the listen port to: 11111
 - Execute `python install.py`
-
-
 
 
 <h2 align="center"> Try it out </h2>
