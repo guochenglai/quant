@@ -24,7 +24,7 @@ def get_spy500_tickers():
 def fetch_real_time_data(ticker):
     logger.info(f"Fetching real-time data for {ticker}")
     try:
-        quote_ctx = OpenQuoteContext(host='127.0.0.1', port=11111)  
+        quote_ctx = OpenQuoteContext(host='127.0.0.1', port=33333)  
         ret, data = quote_ctx.get_market_snapshot(['US.AAPL'])
         quote_ctx.close()
         if ret == RET_OK:

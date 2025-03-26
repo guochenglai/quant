@@ -12,6 +12,15 @@
 - Execute `poetry shell`
 - Execute `python install.py`
    
+<h2 align="center"> Setup your Futu env </h2>
+
+- Note FutuD is for develop usage, it is different from Futu Client, but the account is same with Futu Client
+- Download and install [FutuD](https://www.futunn.com/en/download/OpenAPI)
+- Open FutuD setup the listen port to: 33333
+- Execute `python install.py`
+
+
+
 
 <h2 align="center"> Try it out </h2>
 
