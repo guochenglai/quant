@@ -1,7 +1,8 @@
 import pandas as pd
+from futu import *
 import requests
 import yfinance as yf
-from utils.logging_config import setup_logger
+from .logging_config import setup_logger
 import os
 
 # Set up logger
@@ -20,6 +21,19 @@ def get_spy500_tickers():
     return sp500_table['Symbol'].tolist()
 
 
+def fetch_real_time_data(ticker):
+    logger.info(f"Fetching real-time data for {ticker}")
+    try:
+        quote_ctx = OpenQuoteContext(host='127.0.0.1', port=11111)  
+        ret, data = quote_ctx.get_market_snapshot(['US.AAPL'])
+        quote_ctx.close()
+        if ret == RET_OK:
+            logger.info(f"Real-time data for {ticker}: {data}")
+            return data
+    except Exception as e:
+        logger.error(f"Error fetching real-time data: {str(e)}")
+        return None
+    
 def fetch_stock_data(ticker, start_date=None, end_date=None, period="1y"):
     """
     Fetch stock data using yfinance
