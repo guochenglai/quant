@@ -53,10 +53,17 @@ class FutuClient:
             
             # Connect for US market trading if trading password is provided
             if self.trade_password:
+                # First initialize the trade context without password
                 self.trade_context = OpenUSTradeContext(host=self.trade_host, 
                                                       port=self.trade_port,
-                                                      password=self.trade_password,
                                                       trd_env=self.trd_env)
+                
+                # Then unlock the trade context with the password
+                if self.trade_context:
+                    ret, data = self.trade_context.unlock_trade(password=self.trade_password)
+                    if ret != 0:
+                        self.logger.error(f"Failed to unlock trade context: {data}")
+                        return False
             
             self.logger.info("Successfully connected to Futu servers for US market")
             return True
