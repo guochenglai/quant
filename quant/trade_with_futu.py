@@ -7,7 +7,7 @@ logger.info("Starting trade")
 API_KEY = os.getenv('FUTU_API_KEY')
 SECRET_KEY = os.getenv('FUTU_SECRET_KEY')
 
-api = REST(API_KEY, API_KEY, base_url='https://paper-api.alpaca.markets')
+api = REST(API_KEY, SECRET_KEY, base_url='https://paper-api.alpaca.markets')
 account = api.get_account()
 
 def submit_order(symbol, qty, side, order_type='market', time_in_force='gtc'):

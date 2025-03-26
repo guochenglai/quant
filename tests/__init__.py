@@ -12,8 +12,13 @@ def setup_logger():
     console_handler = logging.StreamHandler()
     console_handler.setLevel(logging.INFO)
     
+    # Create logs directory if it doesn't exist
+    logs_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'logs')
+    if not os.path.exists(logs_dir):
+        os.makedirs(logs_dir)
+    
     # Create file handler
-    file_handler = logging.FileHandler('tests.log')
+    file_handler = logging.FileHandler(os.path.join(logs_dir, 'tests.log'))
     file_handler.setLevel(logging.DEBUG)
     
     # Create formatter
