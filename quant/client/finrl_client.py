@@ -191,7 +191,7 @@ class FinRLClient:
             logger.error(f"Error during model training: {str(e)}")
             raise
 
-    def _save_model(self, model, model_name="ppo_trading_model"):
+    def _save_model(self, model, model_name="finrl_trading_model"):
         """
         Save the trained model.
         

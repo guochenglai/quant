@@ -1,6 +1,5 @@
 from futu import OpenQuoteContext, OpenUSTradeContext, TrdEnv, OrderType, OrderSide, TimeInForce
 import pandas as pd
-import logging
 from typing import Dict, Any, Optional, Union, List
 from utils.logging_config import setup_logger
 
@@ -8,10 +7,10 @@ logger = setup_logger('quant.finrl_client')
 
 class FutuClient:
     """
-    Client for interacting with Futu's API for data fetching and trading in US market.
+    Client for interacting with Futu's API for data git fetching and trading in US market.
     """
     
-    def __init__(self, host: str = "127.0.0.1", port: int = 11111, 
+def __init__(self, host: str = "127.0.0.1", port: int = 11111, 
                  trade_host: str = "127.0.0.1", trade_port: int = 11111,
                  trade_password: Optional[str] = None, 
                  trd_env: TrdEnv = TrdEnv.REAL):
