@@ -30,7 +30,6 @@
 
 <h2 align="center"> Try it out </h2>
 
-- Run `poetry run python .\quant\fetch_data.py` to train data
-- Run `poetry run python .\quant\train_model.py` to train data
-- Run `poetry run python .\quant\back_test.py` to test model
-- Run `poetry run python .\quant\fetch_spy500_data.py` to download stock data for all spy company
+- Run `poetry run python .\test\utils_test.py` to test all the utils in the project
+- Run `poetry run python .\test\finrl_client_test.py.py` to train model
+- Run `poetry run python .\tests\futu_client_test.py.py` to test setup with Futu
