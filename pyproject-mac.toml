@@ -25,6 +25,7 @@ empyrical = "^0.5.5"
 alpaca-trade-api = "^3.2.0"
 futu-api = "^9.1.5108"
 pandas-market-calendars = "^4.6.1"
+polygon = "^1.2.6"
 
 [build-system]
 requires = ["poetry-core"]

@@ -20,6 +20,12 @@
 - Execute `poetry shell`
 - Execute `python install.py`
    
+<h2 align="center"> Setup account info </h2>
+
+- The free user can get 5 requests per second and 500,000 requests per month, for Polygon API. Register [Here](https://polygon.io/docs/getting-started)
+- Setup the environment, on windows set the env directly, on mac execute `vim ~/.zshrc` append `export POLYGON_API_KEY=xxx` to the end of file, save the file execute `source ~/.zshrc`
+
+
 <h2 align="center"> Setup your Futu env </h2>
 
 - Note FutuD is for develop usage, it is different from Futu Client, but the account is same with Futu Client
