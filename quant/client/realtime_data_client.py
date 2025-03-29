@@ -2,7 +2,7 @@ import os
 from polygon import RESTClient
 from quant.utils.logging_config import setup_logger
 
-logger = setup_logger('quant.reaqkl_client')
+logger = setup_logger('quant.realtime_data_client')
 
 class PolygonClient:
     """
@@ -41,3 +41,54 @@ class PolygonClient:
             sort=sort)
         
         return ticks
+
+    def get_ticker_details(self, ticker: str):
+        """
+        Get details of a specific ticker from Polygon API.
+        
+        Args:
+            ticker (str): The ticker symbol to get details for.
+
+        Returns:
+            dict: A response containing:
+                - request_id (str): ID assigned by the server
+                - results (dict): Details of the specified ticker
+        """
+        
+        details = self.rest_client.get_ticker_details(ticker)
+        
+        return details
+
+    def get_ticker_types(self, ticker: str):
+        """
+        Get types of a specific ticker from Polygon API.
+        
+        Args:
+            ticker (str): The ticker symbol to get types for.
+
+        Returns:
+            dict: A response containing:
+                - request_id (str): ID assigned by the server
+                - results (list): Array of types for the specified ticker
+        """
+        
+        types = self.rest_client.get_ticker_types(ticker)
+        
+        return types
+    
+    def get_related_companies(self, ticker: str):
+        """
+        Get related companies for a specific ticker from Polygon API.
+        
+        Args:
+            ticker (str): The ticker symbol to get related companies for.
+
+        Returns:
+            dict: A response containing:
+                - request_id (str): ID assigned by the server
+                - results (list): Array of related companies for the specified ticker
+        """
+        
+        related = self.rest_client.get_related_companies(ticker)
+        
+        return related
