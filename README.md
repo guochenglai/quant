@@ -28,6 +28,7 @@
 <h2 align="center"> Paper trading account setup </h2>
 
 - Each user can have 3 paper trading account, each account have 100,000 dollar, for Alpaca API. Register [Here](https://app.alpaca.markets/paper/dashboard/overview)
+- Config `APCA_API_KEY_ID` and `APCA_API_SECRET_KEY` to your environment
 
 
 <h2 align="center"> Setup your Futu env </h2>
