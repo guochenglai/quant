@@ -14,8 +14,8 @@ gym = "^0.26.2"
 pandas = "^2.2.3"
 numpy = "^1.24.0"  # Downgraded to be compatible with stable-baselines3
 matplotlib = "^3.10.1"
-stable-baselines3 = "2.4.1"
-torch = "2.2.2"
+stable-baselines3 = "2.4.1"  # Pinning to a version compatible with torch 2.2.x
+torch = {version = "2.2.2", source = "pytorch-cuda"}
 scipy = "^1.15.2"
 seaborn = "^0.13.2"
 jupyter = "^1.1.1"
@@ -26,6 +26,13 @@ alpaca-trade-api = "^3.2.0"
 futu-api = "^9.1.5108"
 pandas-market-calendars = "^4.6.1"
 polygon-api-client = "^1.14.4"
+alpaca-py = "0.37"
+
+
+[[tool.poetry.source]]
+name = "pytorch-cuda"
+url = "https://download.pytorch.org/whl/cu121"
+priority = "explicit"
 
 [build-system]
 requires = ["poetry-core"]

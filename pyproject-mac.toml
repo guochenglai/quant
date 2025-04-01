@@ -26,6 +26,7 @@ alpaca-trade-api = "^3.2.0"
 futu-api = "^9.1.5108"
 pandas-market-calendars = "^4.6.1"
 polygon-api-client = "^1.14.4"
+alpaca-py = "0.37"
 
 [build-system]
 requires = ["poetry-core"]
