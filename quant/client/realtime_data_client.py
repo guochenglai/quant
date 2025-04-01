@@ -1,5 +1,6 @@
 import os
 from polygon import RESTClient
+from alpaca.data import StockDataStream
 from quant.utils.logging_config import setup_logger
 
 logger = setup_logger('quant.realtime_data_client')
@@ -92,3 +93,56 @@ class PolygonClient:
         related = self.rest_client.get_related_companies(ticker)
         
         return related
+
+class AlPacaClient:
+    """
+    The free user can get 5 requests per second and 500,000 requests per month, for Alpaca API.
+    Detailed information can be found at https://alpaca.markets/docs/api-documentation/api-v2/
+    """
+    def __init__(self):
+        self.api_key = os.getenv("APCA_API_KEY_ID")
+        self.secret_key = os.getenv("APCA_API_SECRET_KEY")
+    
+    def get_ticker_details(self, ticker: str):
+        """
+        Get details of a specific ticker from Alpaca API.
+        
+        Args:
+            ticker (str): The ticker symbol to get details for.
+
+        Returns:
+            dict: A response containing details of the specified ticker.
+        """
+        
+        stock_stream = StockDataStream("api-key", "secret-key")
+        async def quote_data_handler(data):
+            # quote data will arrive here
+            print(data)
+
+        stock_stream.subscribe_quotes(quote_data_handler, "ticker")
+
+        stock_stream.run()
+
+class RealtimeDataClient:
+    def __init__(self):
+        self.polygon_client = PolygonClient()
+        self.alpaca_client = AlPacaClient()
+    
+    def get_ticker_details(self, ticker: str):
+        """
+        Get details of a specific ticker from both Polygon and Alpaca APIs.
+        
+        Args:
+            ticker (str): The ticker symbol to get details for.
+
+        Returns:
+            dict: A response containing details of the specified ticker from both APIs.
+        """
+        
+        polygon_details = self.polygon_client.get_ticker_details(ticker)
+        alpaca_details = self.alpaca_client.get_ticker_details(ticker)
+        
+        return {
+            "polygon": polygon_details,
+            "alpaca": alpaca_details
+        }
