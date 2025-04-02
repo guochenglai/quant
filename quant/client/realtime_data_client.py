@@ -114,12 +114,13 @@ class AlPacaClient:
             dict: A response containing details of the specified ticker.
         """
         
-        stock_stream = StockDataStream("api-key", "secret-key")
+        print("Getting ticker details from Alpaca API...")
+        stock_stream = StockDataStream(self.api_key, self.secret_key)
         async def quote_data_handler(data):
             # quote data will arrive here
-            print(data)
+            print("stock_data:" + data)
 
-        stock_stream.subscribe_quotes(quote_data_handler, "ticker")
+        stock_stream.subscribe_quotes(quote_data_handler, ticker)
 
         stock_stream.run()
 
