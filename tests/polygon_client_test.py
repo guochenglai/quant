@@ -2,7 +2,7 @@ import unittest
 import os
 from quant.client.realtime_data_client import PolygonClient
 
-class TestRealtimeDataClient(unittest.TestCase):
+class PolygonClientTest(unittest.TestCase):
     
     def setUp(self):
         self.polygon_client = PolygonClient()

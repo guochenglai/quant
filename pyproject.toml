@@ -9,7 +9,7 @@ readme = "README.md"
 python = ">=3.11,<3.12"
 finrl = {git = "https://github.com/AI4Finance-Foundation/FinRL.git"}
 yfinance = "^0.2.55"
-stockstats = "0.5"
+stockstats = "^0.5"
 gym = "^0.26.2"
 pandas = "^2.2.3"
 numpy = "^1.24.0"  # Downgraded to be compatible with stable-baselines3
@@ -26,7 +26,7 @@ alpaca-trade-api = "^3.2.0"
 futu-api = "^9.1.5108"
 pandas-market-calendars = "^4.6.1"
 polygon-api-client = "^1.14.4"
-alpaca-py = "0.37"
+alpaca-py = "^0.37"
 
 
 [[tool.poetry.source]]
