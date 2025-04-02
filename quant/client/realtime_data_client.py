@@ -1,6 +1,6 @@
 import os
 from polygon import RESTClient
-from alpaca.data import StockDataStream
+from alpaca.data.live import StockDataStream
 from quant.utils.logging_config import setup_logger
 
 logger = setup_logger('quant.realtime_data_client')

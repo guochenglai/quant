@@ -18,7 +18,7 @@ class AlPacaClientTest(unittest.TestCase):
 
     def tearDown(self):
         """Clean up after tests."""
-       pass
+        pass
 
 if __name__ == '__main__':
     unittest.main()
