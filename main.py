@@ -9,7 +9,7 @@ import pandas as pd
 from quant.client.paper_trading_clinet import PaperTradingClient
 from quant.client.finrl_client import FinRLClient
 from quant.client.realtime_data_client import PolygonClient
-from quant.utils.utils import get_spy500_tickers
+from quant.utils.utils import get_spy500_symbols
 
 # Configure logging
 logging.basicConfig(
@@ -57,19 +57,19 @@ def get_market_data(symbols, polygon_client):
     market_data = {}
     for symbol in symbols:
         try:
-            # Get ticker details from Polygon
-            ticker_details = polygon_client.get_ticker_details(symbol)
+            # Get symbol details from Polygon
+            symbol_details = polygon_client.get_symbol_details(symbol)
             
             # Extract relevant information from the response
-            if hasattr(ticker_details, 'results'):
-                price = ticker_details.results.last_trade.price if hasattr(ticker_details.results, 'last_trade') else None
-                volume = ticker_details.results.day.volume if hasattr(ticker_details.results, 'day') else None
+            if hasattr(symbol_details, 'results'):
+                price = symbol_details.results.last_trade.price if hasattr(symbol_details.results, 'last_trade') else None
+                volume = symbol_details.results.day.volume if hasattr(symbol_details.results, 'day') else None
                 
                 market_data[symbol] = {
                     'price': price,
                     'volume': volume,
-                    'market_cap': ticker_details.results.market_cap if hasattr(ticker_details.results, 'market_cap') else None,
-                    'name': ticker_details.results.name if hasattr(ticker_details.results, 'name') else None
+                    'market_cap': symbol_details.results.market_cap if hasattr(symbol_details.results, 'market_cap') else None,
+                    'name': symbol_details.results.name if hasattr(symbol_details.results, 'name') else None
                 }
             else:
                 logger.warning(f"No data available for {symbol}")
@@ -104,9 +104,9 @@ def main():
         account_info = paper_trading_client.get_account_info()
         logger.info(f"Trading account initialized with ${account_info.get('cash', 0)} cash available")
         
-        # Get S&P 500 tickers and limit to a manageable number
+        # Get S&P 500 symbols and limit to a manageable number
         # Taking first 10 symbols for easier testing - increase as needed
-        all_symbols = get_spy500_tickers()
+        all_symbols = get_spy500_symbols()
         symbols = all_symbols[:10]  # Limiting to 10 symbols to avoid API rate limits
         logger.info(f"Using {len(symbols)} symbols from S&P 500")
         

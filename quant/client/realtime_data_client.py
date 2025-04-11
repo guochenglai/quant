@@ -14,15 +14,15 @@ class PolygonClient:
         self.api_key = os.getenv("POLYGON_API_KEY")
         self.rest_client = RESTClient(self.api_key)
 
-    def get_tick_list(self, market: str = "stocks", active: str = "true", order: str = "asc", limit: int = 100, sort: str = "ticker"):
+    def get_symbol_list(self, market: str = "stocks", active: str = "true", order: str = "asc", limit: int = 100, sort: str = "ticker"):
         """
-        Get a list of tickers from Polygon API.
+        Get a list of symbols from Polygon API.
         
         Args:
-            market (str): The market to get tickers from. Default is "stocks".
-            active (str): Whether to get active tickers. Default is "true".
-            order (str): The order of the tickers. Default is "asc".
-            limit (int): The maximum number of tickers to return. Default is 100.
+            market (str): The market to get symbols from. Default is "stocks".
+            active (str): Whether to get active symbols. Default is "true".
+            order (str): The order of the symbols. Default is "asc".
+            limit (int): The maximum number of symbols to return. Default is 100.
             sort (str): The sorting criteria. Default is "ticker".
 
         Returns:
@@ -34,63 +34,63 @@ class PolygonClient:
                 
         """
         
-        ticks  = self.rest_client.list_tickers(
+        symbols  = self.rest_client.list_tickers(
             market=market,
             active=active,
             order=order,
             limit=limit,
             sort=sort)
         
-        return ticks
+        return symbols
 
-    def get_ticker_details(self, ticker: str):
+    def get_symbol_details(self, symbol: str):
         """
-        Get details of a specific ticker from Polygon API.
+        Get details of a specific symbol from Polygon API.
         
         Args:
-            ticker (str): The ticker symbol to get details for.
+            symbol (str): The stock symbol to get details for.
 
         Returns:
             dict: A response containing:
                 - request_id (str): ID assigned by the server
-                - results (dict): Details of the specified ticker
+                - results (dict): Details of the specified symbol
         """
         
-        details = self.rest_client.get_ticker_details(ticker)
+        details = self.rest_client.get_ticker_details(symbol)
         
         return details
 
-    def get_ticker_types(self, ticker: str):
+    def get_symbol_types(self, symbol: str):
         """
-        Get types of a specific ticker from Polygon API.
+        Get types of a specific symbol from Polygon API.
         
         Args:
-            ticker (str): The ticker symbol to get types for.
+            symbol (str): The stock symbol to get types for.
 
         Returns:
             dict: A response containing:
                 - request_id (str): ID assigned by the server
-                - results (list): Array of types for the specified ticker
+                - results (list): Array of types for the specified symbol
         """
         
-        types = self.rest_client.get_ticker_types(ticker)
+        types = self.rest_client.get_ticker_types(symbol)
         
         return types
     
-    def get_related_companies(self, ticker: str):
+    def get_related_companies(self, symbol: str):
         """
-        Get related companies for a specific ticker from Polygon API.
+        Get related companies for a specific symbol from Polygon API.
         
         Args:
-            ticker (str): The ticker symbol to get related companies for.
+            symbol (str): The stock symbol to get related companies for.
 
         Returns:
             dict: A response containing:
                 - request_id (str): ID assigned by the server
-                - results (list): Array of related companies for the specified ticker
+                - results (list): Array of related companies for the specified symbol
         """
         
-        related = self.rest_client.get_related_companies(ticker)
+        related = self.rest_client.get_related_companies(symbol)
         
         return related
 
@@ -103,24 +103,24 @@ class AlPacaClient:
         self.api_key = os.getenv("APCA_API_KEY_ID")
         self.secret_key = os.getenv("APCA_API_SECRET_KEY")
     
-    def get_ticker_details(self, ticker: str):
+    def get_symbol_details(self, symbol: str):
         """
-        Get details of a specific ticker from Alpaca API.
+        Get details of a specific symbol from Alpaca API.
         
         Args:
-            ticker (str): The ticker symbol to get details for.
+            symbol (str): The stock symbol to get details for.
 
         Returns:
-            dict: A response containing details of the specified ticker.
+            dict: A response containing details of the specified symbol.
         """
         
-        print("Getting ticker details from Alpaca API...")
+        print("Getting symbol details from Alpaca API...")
         stock_stream = StockDataStream(self.api_key, self.secret_key)
         async def quote_data_handler(data):
             # quote data will arrive here
             print("stock_data:" + data)
 
-        stock_stream.subscribe_quotes(quote_data_handler, ticker)
+        stock_stream.subscribe_quotes(quote_data_handler, symbol)
 
         stock_stream.run()
 
@@ -129,19 +129,19 @@ class RealtimeDataClient:
         self.polygon_client = PolygonClient()
         self.alpaca_client = AlPacaClient()
     
-    def get_ticker_details(self, ticker: str):
+    def get_symbol_details(self, symbol: str):
         """
-        Get details of a specific ticker from both Polygon and Alpaca APIs.
+        Get details of a specific symbol from both Polygon and Alpaca APIs.
         
         Args:
-            ticker (str): The ticker symbol to get details for.
+            symbol (str): The stock symbol to get details for.
 
         Returns:
-            dict: A response containing details of the specified ticker from both APIs.
+            dict: A response containing details of the specified symbol from both APIs.
         """
         
-        polygon_details = self.polygon_client.get_ticker_details(ticker)
-        alpaca_details = self.alpaca_client.get_ticker_details(ticker)
+        polygon_details = self.polygon_client.get_symbol_details(symbol)
+        alpaca_details = self.alpaca_client.get_symbol_details(symbol)
         
         return {
             "polygon": polygon_details,

@@ -9,24 +9,24 @@ import os
 # Set up logger
 logger = setup_logger('utils')
 
-def download_data(start_date, end_date, ticker_list):
+def download_data(start_date, end_date, symbol_list):
     """
     Download stock data using Yahoo Downloader.
     
     Args:
         start_date (str): Start date for historical data
         end_date (str): End date for historical data
-        ticker_list (list): List of ticker symbols
+        symbol_list (list): List of stock symbols
         
     Returns:
         pandas.DataFrame: Downloaded stock data
     """
     try:
-        logger.info(f"Downloading data for {ticker_list} from {start_date} to {end_date}")
+        logger.info(f"Downloading data for {symbol_list} from {start_date} to {end_date}")
         df = YahooDownloader(
             start_date=start_date,
             end_date=end_date,
-            ticker_list=ticker_list
+            ticker_list=symbol_list  # Note: YahooDownloader API expects ticker_list
         ).fetch_data()
         logger.info(f"Successfully downloaded data with shape: {df.shape}")
         return df
@@ -34,13 +34,13 @@ def download_data(start_date, end_date, ticker_list):
         logger.error(f"Error downloading data: {str(e)}")
         raise
 
-def get_spy500_tickers():
+def get_spy500_symbols():
     """
-    Fetch the list of S&P 500 tickers from Wikipedia
+    Fetch the list of S&P 500 symbols from Wikipedia
     """
     url = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
     response = requests.get(url, verify=False)
     tables = pd.read_html(response.text)
     sp500_table = tables[0]
-    logger.info(f"Fetched {len(sp500_table)} tickers from S&P 500")
+    logger.info(f"Fetched {len(sp500_table)} symbols from S&P 500")
     return sp500_table['Symbol'].tolist()
