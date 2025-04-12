@@ -9,31 +9,6 @@ import os
 # Set up logger
 logger = setup_logger('utils')
 
-def download_data(start_date, end_date, symbol_list):
-    """
-    Download stock data using Yahoo Downloader.
-    
-    Args:
-        start_date (str): Start date for historical data
-        end_date (str): End date for historical data
-        symbol_list (list): List of stock symbols
-        
-    Returns:
-        pandas.DataFrame: Downloaded stock data
-    """
-    try:
-        logger.info(f"Downloading data for {symbol_list} from {start_date} to {end_date}")
-        df = YahooDownloader(
-            start_date=start_date,
-            end_date=end_date,
-            ticker_list=symbol_list  # Note: YahooDownloader API expects ticker_list
-        ).fetch_data()
-        logger.info(f"Successfully downloaded data with shape: {df.shape}")
-        return df
-    except Exception as e:
-        logger.error(f"Error downloading data: {str(e)}")
-        raise
-
 def get_spy500_symbols():
     """
     Fetch the list of S&P 500 symbols from Wikipedia
