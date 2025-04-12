@@ -101,17 +101,6 @@ def main():
         # Taking first 10 symbols for easier testing - increase as needed
         all_symbols = get_spy500_symbols(logger)
         logger.info(f"All S&P 500 symbols fetched: {len(all_symbols)} symbols : [{all_symbols}]")
-        symbols = all_symbols[:10]  # Limiting to 10 symbols to avoid API rate limits
-        logger.info(f"Using {len(symbols)} symbols from S&P 500")
-        
-        # Verify symbols are tradable
-        tradable_symbols = []
-        for symbol in symbols:
-            if paper_trading_client.is_tradeable(symbol):
-                tradable_symbols.append(symbol)
-            
-        symbols = tradable_symbols
-        logger.info(f"Trading the following symbols: {symbols}")
         
         # Main trading loop
         while True:
@@ -122,6 +111,14 @@ def main():
                     time.sleep(60)  # Check every minute if market is closed
                     continue
                 
+                tradable_symbols = []
+                for symbol in symbols:
+                    if paper_trading_client.is_tradeable(symbol):
+                        tradable_symbols.append(symbol)
+                    
+                symbols = tradable_symbols
+                logger.info(f"All tradable symbols: {len(symbols)} symbols : [{symbols}]")
+                
                 logger.info("Checking for trading opportunities...")
                 
                 # Get current market data using Polygon client
@@ -131,7 +128,7 @@ def main():
                 portfolio = {}
                 for symbol in symbols:
                     try:
-                        position, _ = paper_trading_client.get_positions(symbol)
+                        position, portfolio = paper_trading_client.get_positions(symbol)
                         if position:
                             portfolio[symbol] = position
                     except Exception as e:

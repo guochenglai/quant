@@ -42,7 +42,7 @@ class PaperTradingClient:
                         account_dict[attr] = getattr(account, attr)
                 
             # Log as JSON, converting any remaining non-serializable objects to strings
-            self.logger.info(f"=================== Got Account Info ==================== \n: {json.dumps(account_dict, indent=4, default=str)}")
+            self.logger.info(f"Current account detail: \n: {json.dumps(account_dict, indent=4, default=str)}")
         except Exception as e:
             # Fallback to logging object attributes
             self.logger.error(f"Account Info (not serializable to JSON): {account}")
@@ -56,11 +56,10 @@ class PaperTradingClient:
         """
         try:
             position = self.paper_trading_client.get_open_position(symbol)
-            self.logger.info(f"=================== Got Position Info ==================== \n: {json.dumps(position, indent=4, default=str)}")
             
             portfolio = self.paper_trading_client.get_all_positions()
 
-            self.logger.info(f"=================== Got All Positions ==================== \n: {json.dumps(portfolio, indent=4, default=str)}")
+            self.logger.info(f"The position details of current user \n {json.dumps(position, indent=4, default=str)} \n The portfolio detail of current user are: \n: {json.dumps(portfolio, indent=4, default=str)}")
 
             return position, portfolio
         except Exception as e:
@@ -80,7 +79,7 @@ class PaperTradingClient:
             orders = self.paper_trading_client.get_orders(filter=get_orders_request)
             
             orders_list = [order.model_dump() for order in orders]
-            self.logger.info(f"=================== Got All Orders ==================== \n: {json.dumps(orders_list, indent=4, default=str)}")
+            self.logger.info(f"All orders of current account are \n: {json.dumps(orders_list, indent=4, default=str)}")
             return orders_list
         except Exception as e:
             self.logger.error(f"Error fetching orders: {e}")
@@ -92,7 +91,7 @@ class PaperTradingClient:
         """
         try:
             asset = self.paper_trading_client.get_asset(symbol)
-            self.logger.info(f"=================== Got Asset Info ==================== \n: {json.dumps(asset, indent=4, default=str)}")
+            self.logger.info(f"The tradable status of {symbol} is: {asset.tradable}")
             return asset.tradable
         except Exception as e:
             self.logger.error(f"Error fetching asset info for {symbol}: {e}")
@@ -116,7 +115,7 @@ class PaperTradingClient:
                 order_data=market_order_data
             )
 
-            self.logger.info(f"=================== Order Submitted ==================== \n: OrderId: {order_id}  OrderDetails: {json.dumps(market_order, indent=4, default=str)}")
+            self.logger.info(f"Submit a market buy order \n: OrderId: {order_id}  OrderDetails: {json.dumps(market_order, indent=4, default=str)}")
             return market_order
         except Exception as e:
             self.logger.error(f"Error placing order for {symbol}: {e}")
@@ -140,7 +139,7 @@ class PaperTradingClient:
                 order_data=market_order_data
             )
 
-            self.logger.info(f"=================== Order Submitted ==================== \n: OrderId: {order_id}  OrderDetails: {json.dumps(market_order, indent=4, default=str)}")
+            self.logger.info(f"Submit a market sell order \n: OrderId: {order_id}  OrderDetails: {json.dumps(market_order, indent=4, default=str)}")
             return market_order
         except Exception as e:
             self.logger.error(f"Error placing order for {symbol}: {e}")
@@ -165,7 +164,7 @@ class PaperTradingClient:
                 order_data=limit_order_data
             )
 
-            self.logger.info(f"=================== Order Submitted ==================== \n: OrderId: {order_id}  OrderDetails: {json.dumps(limit_order_data, indent=4, default=str)}")
+            self.logger.info(f"Submit a limit buy order \n: OrderId: {order_id}  OrderDetails: {json.dumps(limit_order_data, indent=4, default=str)}")
             return limit_order
         except Exception as e:
             self.logger.error(f"Error placing order for {symbol}: {e}")
@@ -190,7 +189,7 @@ class PaperTradingClient:
                 order_data=limit_order_data
             )
 
-            self.logger.info(f"=================== Order Submitted ==================== \n: OrderId: {order_id}  OrderDetails: {json.dumps(limit_order_data, indent=4, default=str)}")
+            self.logger.info(f"Submit a limit sell order \n: OrderId: {order_id}  OrderDetails: {json.dumps(limit_order_data, indent=4, default=str)}")
             return limit_order
         except Exception as e:
             self.logger.error(f"Error placing order for {symbol}: {e}")
@@ -214,7 +213,7 @@ class PaperTradingClient:
                 order_data=market_order_data
             )
 
-            self.logger.info(f"=================== Order Submitted ==================== \n: OrderId: {order_id}  OrderDetails: {json.dumps(market_order, indent=4, default=str)}")
+            self.logger.info(f"Submit a buy short order \n: OrderId: {order_id}  OrderDetails: {json.dumps(market_order, indent=4, default=str)}")
             return market_order
         except Exception as e:
             self.logger.error(f"Error placing order for {symbol}: {e}")
@@ -238,7 +237,7 @@ class PaperTradingClient:
                 order_data=market_order_data
             )
 
-            self.logger.info(f"=================== Order Submitted ==================== \n: OrderId: {order_id}  OrderDetails: {json.dumps(market_order, indent=4, default=str)}")
+            self.logger.info(f"Submit a sell short order \n: OrderId: {order_id}  OrderDetails: {json.dumps(market_order, indent=4, default=str)}")
             return market_order
         except Exception as e:
             self.logger.error(f"Error placing order for {symbol}: {e}")
@@ -265,7 +264,7 @@ class PaperTradingClient:
                 order_data=bracket_order_data
             )
 
-            self.logger.info(f"=================== Order Submitted ==================== \n: OrderId: {order_id}  OrderDetails: {json.dumps(bracket_order, indent=4, default=str)}")
+            self.logger.info(f"Submit a bracket buy order \n: OrderId: {order_id}  OrderDetails: {json.dumps(bracket_order, indent=4, default=str)}")
             return bracket_order
         except Exception as e:
             self.logger.error(f"Error placing order for {symbol}: {e}")
@@ -292,7 +291,7 @@ class PaperTradingClient:
                 order_data=bracket_order_data
             )
 
-            self.logger.info(f"=================== Order Submitted ==================== \n: OrderId: {order_id}  OrderDetails: {json.dumps(bracket_order, indent=4, default=str)}")
+            self.logger.info(f"Submit a bracket sell order  \n: OrderId: {order_id}  OrderDetails: {json.dumps(bracket_order, indent=4, default=str)}")
             return bracket_order
         except Exception as e:
             self.logger.error(f"Error placing order for {symbol}: {e}")
@@ -317,7 +316,7 @@ class PaperTradingClient:
                 order_data=trailing_order_data
             )
 
-            self.logger.info(f"=================== Order Submitted ==================== \n: OrderId: {order_id}  OrderDetails: {json.dumps(trailing_order, indent=4, default=str)}")
+            self.logger.info(f"Submit a trailing percent buy order \n: OrderId: {order_id}  OrderDetails: {json.dumps(trailing_order, indent=4, default=str)}")
             return trailing_order
         except Exception as e:
             self.logger.error(f"Error placing order for {symbol}: {e}")
@@ -342,7 +341,7 @@ class PaperTradingClient:
                 order_data=trailing_order_data
             )
 
-            self.logger.info(f"=================== Order Submitted ==================== \n: OrderId: {order_id}  OrderDetails: {json.dumps(trailing_order, indent=4, default=str)}")
+            self.logger.info(f"Submit a trailing percent sell order \n: OrderId: {order_id}  OrderDetails: {json.dumps(trailing_order, indent=4, default=str)}")
             return trailing_order
         except Exception as e:
             self.logger.error(f"Error placing order for {symbol}: {e}")
@@ -367,7 +366,7 @@ class PaperTradingClient:
                 order_data=trailing_order_data
             )
 
-            self.logger.info(f"=================== Order Submitted ==================== \n: OrderId: {order_id}  OrderDetails: {json.dumps(trailing_order, indent=4, default=str)}")
+            self.logger.info(f"Submit a trailing price buy order \n: OrderId: {order_id}  OrderDetails: {json.dumps(trailing_order, indent=4, default=str)}")
             return trailing_order
         except Exception as e:
             self.logger.error(f"Error placing order for {symbol}: {e}")
@@ -392,7 +391,7 @@ class PaperTradingClient:
                 order_data=trailing_order_data
             )
 
-            self.logger.info(f"=================== Order Submitted ==================== \n: OrderId: {order_id}  OrderDetails: {json.dumps(trailing_order, indent=4, default=str)}")
+            self.logger.info(f"Submit a trailing price sell order\n: OrderId: {order_id}  OrderDetails: {json.dumps(trailing_order, indent=4, default=str)}")
             return trailing_order
         except Exception as e:
             self.logger.error(f"Error placing order for {symbol}: {e}")
