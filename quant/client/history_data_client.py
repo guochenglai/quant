@@ -1,16 +1,22 @@
 import pandas as pd
 from futu import *
-import requests
+import requests, logging
 import yfinance as yf
 from finrl.meta.preprocessor.yahoodownloader import YahooDownloader
 from quant.constants import *
-from quant.utils.logging_config import setup_logger
-logger = setup_logger('quant.history_data_client')
 
 class HistoryDataClient:
     """
     A client for fetching historical data.
     """
+    def __init__(self, logger=None):
+        """
+        Initialize the History Data client.
+        
+        Args:
+            logger (logging.Logger): Logger instance. If None, uses a default logger.
+        """
+        self.logger = logger or logging.getLogger(__name__)
 
     def fetch_data(self, symbol, start_date, end_date):
         """
@@ -23,16 +29,16 @@ class HistoryDataClient:
         """
         try:
             ticker_list = [symbol]
-            logger.info(f"Downloading data for {ticker_list} from {start_date} to {end_date}")
+            self.logger.info(f"Downloading data for {ticker_list} from {start_date} to {end_date}")
             df = YahooDownloader(
                 start_date=start_date,
                 end_date=end_date,
                 ticker_list=ticker_list
             ).fetch_data()
-            logger.info(f"Successfully downloaded data with shape: {df.shape}")
+            self.logger.info(f"Successfully downloaded data with shape: {df.shape}")
             return df
         except Exception as e:
-            logger.error(f"Error downloading data: {str(e)}")
+            self.logger.error(f"Error downloading data: {str(e)}")
     
     def batch_fetch_data(self, symbols, start_date, end_date):
         """
@@ -44,16 +50,16 @@ class HistoryDataClient:
         :return: Historical data for the specified symbols and date range.
         """
         try:
-            logger.info(f"Downloading data for {symbols} from {start_date} to {end_date}")
+            self.logger.info(f"Downloading data for {symbols} from {start_date} to {end_date}")
             df = YahooDownloader(
                 start_date=start_date,
                 end_date=end_date,
                 ticker_list=symbols
             ).fetch_data()
-            logger.info(f"Successfully downloaded data with shape: {df.shape}")
+            self.logger.info(f"Successfully downloaded data with shape: {df.shape}")
             return df
         except Exception as e:
-            logger.error(f"Error downloading data: {str(e)}")
+            self.logger.error(f"Error downloading data: {str(e)}")
             raise
     
     def save_data(self, df, symbol):
@@ -72,10 +78,10 @@ class HistoryDataClient:
 
             if os.path.exists(file_path):
                 os.remove(file_path)
-                logger.info(f"Existing file {file_path} removed.")
+                self.logger.info(f"Existing file {file_path} removed.")
 
             df.to_csv(file_path, index=False)
-            logger.info(f"Data saved to {file_path}")
+            self.logger.info(f"Data saved to {file_path}")
         except Exception as e:
-            logger.error(f"Error saving data: {str(e)}")
+            self.logger.error(f"Error saving data: {str(e)}")
             raise

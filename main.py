@@ -1,26 +1,18 @@
 import time
-import logging
 import os
 import sys
 from datetime import datetime
 import pytz
 import pandas as pd
 
-from quant.client.paper_trading_clinet import PaperTradingClient
+from quant.client.paper_trading_client import PaperTradingClient
 from quant.client.finrl_client import FinRLClient
 from quant.client.realtime_data_client import PolygonClient
 from quant.utils.utils import get_spy500_symbols
+from quant.logger import configure_logger
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler(f"quant_trading_{datetime.now().strftime('%Y%m%d')}.log")
-    ]
-)
-logger = logging.getLogger(__name__)
+# Configure root logger for the application
+logger = configure_logger(name='main', log_file='trade')
 
 # Market hours for US stocks (Eastern Time)
 MARKET_OPEN_HOUR = 9
@@ -43,13 +35,14 @@ def is_market_open():
     
     return market_open <= now <= market_close
 
-def get_market_data(symbols, polygon_client):
+def get_market_data(symbols, polygon_client, logger):
     """
     Get current market data for the specified symbols using Polygon API.
     
     Args:
         symbols (list): List of stock symbols
         polygon_client (PolygonClient): Instance of the Polygon client
+        logger (logging.Logger): Logger for this function
         
     Returns:
         dict: Dictionary containing market data for each symbol
@@ -94,11 +87,11 @@ def main():
     """Main function to run the trading system."""
     logger.info("Starting quantitative trading system")
     
-    # Initialize clients
+    # Initialize clients with the logger
     try:
-        paper_trading_client = PaperTradingClient()
-        finrl_client = FinRLClient()
-        polygon_client = PolygonClient()
+        paper_trading_client = PaperTradingClient(logger=logger)
+        finrl_client = FinRLClient(logger=logger)
+        polygon_client = PolygonClient(logger=logger)
         
         # Get account information
         account_info = paper_trading_client.get_account_info()
@@ -106,7 +99,8 @@ def main():
         
         # Get S&P 500 symbols and limit to a manageable number
         # Taking first 10 symbols for easier testing - increase as needed
-        all_symbols = get_spy500_symbols()
+        all_symbols = get_spy500_symbols(logger)
+        logger.info(f"All S&P 500 symbols fetched: {len(all_symbols)} symbols : [{all_symbols}]")
         symbols = all_symbols[:10]  # Limiting to 10 symbols to avoid API rate limits
         logger.info(f"Using {len(symbols)} symbols from S&P 500")
         
@@ -131,7 +125,7 @@ def main():
                 logger.info("Checking for trading opportunities...")
                 
                 # Get current market data using Polygon client
-                market_data = get_market_data(symbols, polygon_client)
+                market_data = get_market_data(symbols, polygon_client, logger)
                 
                 # Get current positions
                 portfolio = {}

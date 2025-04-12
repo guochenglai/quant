@@ -28,7 +28,7 @@
 <h2 align="center"> Paper trading account setup </h2>
 
 - Each user can have 3 paper trading account, each account have 100,000 dollar, for Alpaca API. Register [Here](https://app.alpaca.markets/paper/dashboard/overview)
-- Config `APCA_API_KEY_ID` and `APCA_API_SECRET_KEY` to your environment
+- Config `APCA_API_KEY_ID` and `so` to your environment
 
 
 <h2 align="center"> Setup your Futu env </h2>
@@ -43,4 +43,5 @@
 
 - Run `poetry run python .\tests\history_data_client_test.py` download all spy 500 stocks and save to data directory
 - Run `poetry run python .\test\finrl_client_test.py` to train model of a specific stock and save it to the model dir
-- Run `poetry run python .\tests\tests\polygon_client_test.py` poloygon client to get realtime data
+- Run `poetry run python .\tests\polygon_client_test.py` poloygon client to get realtime data
+- Run `poetry run python .\tests\paper_trading_client_test.py` alpaca client to do paper trading

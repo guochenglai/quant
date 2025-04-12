@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-import torch,os
+import torch, os, logging
 from typing import Dict, Any, Optional, Union, List, Tuple
 from finrl.meta.env_stock_trading.env_stocktrading import StockTradingEnv
 from finrl.meta.preprocessor.preprocessors import FeatureEngineer
@@ -8,14 +8,9 @@ from finrl.config import INDICATORS
 from stable_baselines3 import PPO
 from quant.utils.utils import *
 from quant.constants import *
-from quant.utils.logging_config import setup_logger
 from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.vec_env import DummyVecEnv
 from quant.client.history_data_client import HistoryDataClient
-import os
-
-
-logger = setup_logger('quant.finrl_client')
 
 class FinRLClient:
     """
@@ -26,7 +21,8 @@ class FinRLClient:
     def __init__(self, 
                  data_dir: str = "data", 
                  model_dir: str = "trained_models",
-                 model_path: str = None):
+                 model_path: str = None,
+                 logger=None):
         """
         Initialize the FinRL client.
         
@@ -34,12 +30,14 @@ class FinRLClient:
             data_dir: Directory for saving/loading market data
             model_dir: Directory for saving trained models
             model_path: Path to a pre-trained model (if available)
+            logger: Logger instance. If None, uses a default logger.
         """
+        self.logger = logger or logging.getLogger(__name__)
         self.data_dir = data_dir
         self.model_dir = model_dir
         self.model_path = model_path
         self.model = None
-        self.history_data_client = HistoryDataClient()
+        self.history_data_client = HistoryDataClient(logger=self.logger)
         
         # Create directories if they don't exist
         os.makedirs(self.data_dir, exist_ok=True)
@@ -91,7 +89,7 @@ class FinRLClient:
         try:
             # Check if model is loaded
             if self.model is None:
-                logger.error("No model loaded. Either train a new model or load an existing one.")
+                self.logger.error("No model loaded. Either train a new model or load an existing one.")
                 return "HOLD", 0.0, current_position
             
             # Process market data to match the format expected by the model
@@ -128,11 +126,11 @@ class FinRLClient:
                 decision = "HOLD"
                 target_qty = current_position
                 
-            logger.info(f"Model decision for {symbol}: {decision} (confidence: {confidence:.2f}, target qty: {target_qty})")
+            self.logger.info(f"Model decision for {symbol}: {decision} (confidence: {confidence:.2f}, target qty: {target_qty})")
             return decision, confidence, target_qty
             
         except Exception as e:
-            logger.error(f"Error getting model action: {str(e)}")
+            self.logger.error(f"Error getting model action: {str(e)}")
             # Return safe default in case of error
             return "HOLD", 0.0, current_position
             
@@ -174,7 +172,7 @@ class FinRLClient:
             return observation.reshape(1, -1)
             
         except Exception as e:
-            logger.error(f"Error preparing observation: {str(e)}")
+            self.logger.error(f"Error preparing observation: {str(e)}")
             # Return a safe default
             return np.zeros((1, 3))  # Adjust size based on expected input
     
@@ -189,12 +187,12 @@ class FinRLClient:
             bool: True if successful, False otherwise
         """
         try:
-            logger.info(f"Loading model from {model_path}")
+            self.logger.info(f"Loading model from {model_path}")
             self.model = PPO.load(model_path)
-            logger.info("Model loaded successfully")
+            self.logger.info("Model loaded successfully")
             return True
         except Exception as e:
-            logger.error(f"Error loading model: {str(e)}")
+            self.logger.error(f"Error loading model: {str(e)}")
             return False
 
     def _config_gpu(self):
@@ -206,10 +204,10 @@ class FinRLClient:
         """
         try:
             self.device = "cuda" if torch.cuda.is_available() else "cpu"
-            logger.info(f"Using device: {self.device}")
+            self.logger.info(f"Using device: {self.device}")
         except Exception as e:
-            logger.error(f"Error during GPU configuration: {str(e)}")
-            logger.info("Falling back to CPU")
+            self.logger.error(f"Error during GPU configuration: {str(e)}")
+            self.logger.info("Falling back to CPU")
             return "cpu"
 
     
@@ -226,7 +224,7 @@ class FinRLClient:
             pandas.DataFrame: Processed data with engineered features
         """
         try:
-            logger.info("Starting feature engineering process")
+            self.logger.info("Starting feature engineering process")
             if indicator_list is None:
                 indicator_list = INDICATORS
                 
@@ -235,10 +233,10 @@ class FinRLClient:
                 tech_indicator_list=indicator_list
             )
             processed_df = fe.preprocess_data(df)
-            logger.info(f"Feature engineering completed. New shape: {processed_df.shape}")
+            self.logger.info(f"Feature engineering completed. New shape: {processed_df.shape}")
             return processed_df
         except Exception as e:
-            logger.error(f"Error during feature engineering: {str(e)}")
+            self.logger.error(f"Error during feature engineering: {str(e)}")
             raise
 
     def _create_environment(self, df, stock_dim=1, hmax=100, initial_amount=1000000,
@@ -265,7 +263,7 @@ class FinRLClient:
             StockTradingEnv: Trading environment
         """
         try:
-            logger.info("Creating stock trading environment")
+            self.logger.info("Creating stock trading environment")
 
             if num_stock_shares is None:
                 num_stock_shares = [0] * stock_dim
@@ -301,10 +299,10 @@ class FinRLClient:
             )
 
             env = DummyVecEnv([lambda: Monitor(env)])
-            logger.info("Environment created and wrapped successfully.")
+            self.logger.info("Environment created and wrapped successfully.")
             return env
         except Exception as e:
-            logger.error(f"Error creating environment: {str(e)}")
+            self.logger.error(f"Error creating environment: {str(e)}")
             raise
 
     def _train_model(self, env, total_timesteps=10000):
@@ -319,13 +317,13 @@ class FinRLClient:
             stable_baselines3.PPO: Trained model
         """
         try:
-            logger.info(f"Starting model training on {self.device} for {total_timesteps} timesteps")
+            self.logger.info(f"Starting model training on {self.device} for {total_timesteps} timesteps")
             model = PPO("MlpPolicy", env, verbose=1, device = self.device)
             model.learn(total_timesteps=total_timesteps)
-            logger.info("Model training completed")
+            self.logger.info("Model training completed")
             return model
         except Exception as e:
-            logger.error(f"Error during model training: {str(e)}")
+            self.logger.error(f"Error during model training: {str(e)}")
             raise
 
     def _save_model(self, model, model_name="finrl_trading_model"):
@@ -342,11 +340,11 @@ class FinRLClient:
         try:
             path = os.path.join(project_root_dir, "../model", model_name)
             os.makedirs(os.path.dirname(path), exist_ok=True)
-            logger.info(f"Saving model to {path}")
+            self.logger.info(f"Saving model to {path}")
             model.save(path)
-            logger.info(f"Model successfully saved to {path}")
+            self.logger.info(f"Model successfully saved to {path}")
             return path
         except Exception as e:
-            logger.error(f"Error saving model: {str(e)}")
+            self.logger.error(f"Error saving model: {str(e)}")
             raise
 

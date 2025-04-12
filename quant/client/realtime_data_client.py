@@ -1,16 +1,23 @@
-import os
+import os, logging
 from polygon import RESTClient
 from alpaca.data.live import StockDataStream
-from quant.utils.logging_config import setup_logger
+from quant.logger import get_logger
 
-logger = setup_logger('quant.realtime_data_client')
+logger = get_logger('quant.realtime_data_client')
 
 class PolygonClient:
     """
     The free user can get 5 requests per second and 500,000 requests per month, for Polygon API.
     Detailed information can be found at https://polygon.io/docs/getting-started
     """
-    def __init__(self):
+    def __init__(self, logger=None):
+        """
+        Initialize the Polygon client.
+        
+        Args:
+            logger (logging.Logger): Logger instance. If None, uses a default logger.
+        """
+        self.logger = logger or logging.getLogger(__name__)
         self.api_key = os.getenv("POLYGON_API_KEY")
         self.rest_client = RESTClient(self.api_key)
 
@@ -33,15 +40,20 @@ class PolygonClient:
                 - results (list): Array of ticker objects matching the query
                 
         """
-        
-        symbols  = self.rest_client.list_tickers(
-            market=market,
-            active=active,
-            order=order,
-            limit=limit,
-            sort=sort)
-        
-        return symbols
+        try:
+            self.logger.info(f"Fetching symbol list with parameters: market={market}, active={active}, limit={limit}")
+            symbols = self.rest_client.list_tickers(
+                market=market,
+                active=active,
+                order=order,
+                limit=limit,
+                sort=sort)
+            
+            self.logger.debug(f"Received {len(symbols)} symbols from Polygon API")
+            return symbols
+        except Exception as e:
+            self.logger.error(f"Error fetching symbol list: {str(e)}")
+            return []
 
     def get_symbol_details(self, symbol: str):
         """
@@ -99,7 +111,14 @@ class AlPacaClient:
     The free user can get 5 requests per second and 500,000 requests per month, for Alpaca API.
     Detailed information can be found at https://alpaca.markets/docs/api-documentation/api-v2/
     """
-    def __init__(self):
+    def __init__(self, logger=None):
+        """
+        Initialize the Alpaca client.
+        
+        Args:
+            logger (logging.Logger): Logger instance. If None, uses a default logger.
+        """
+        self.logger = logger or logging.getLogger(__name__)
         self.api_key = os.getenv("APCA_API_KEY_ID")
         self.secret_key = os.getenv("APCA_API_SECRET_KEY")
     
@@ -113,21 +132,31 @@ class AlPacaClient:
         Returns:
             dict: A response containing details of the specified symbol.
         """
-        
-        print("Getting symbol details from Alpaca API...")
-        stock_stream = StockDataStream(self.api_key, self.secret_key)
-        async def quote_data_handler(data):
-            # quote data will arrive here
-            print("stock_data:" + data)
+        try:
+            self.logger.info("Getting symbol details from Alpaca API...")
+            stock_stream = StockDataStream(self.api_key, self.secret_key)
+            async def quote_data_handler(data):
+                # quote data will arrive here
+                self.logger.info(f"Received stock data: {data}")
 
-        stock_stream.subscribe_quotes(quote_data_handler, symbol)
-
-        stock_stream.run()
+            stock_stream.subscribe_quotes(quote_data_handler, symbol)
+            stock_stream.run()
+            return None
+        except Exception as e:
+            self.logger.error(f"Error getting symbol details from Alpaca: {str(e)}")
+            return None
 
 class RealtimeDataClient:
-    def __init__(self):
-        self.polygon_client = PolygonClient()
-        self.alpaca_client = AlPacaClient()
+    def __init__(self, logger=None):
+        """
+        Initialize the Realtime Data client.
+        
+        Args:
+            logger (logging.Logger): Logger instance. If None, uses a default logger.
+        """
+        self.logger = logger or logging.getLogger(__name__)
+        self.polygon_client = PolygonClient(logger=logger)
+        self.alpaca_client = AlPacaClient(logger=logger)
     
     def get_symbol_details(self, symbol: str):
         """
