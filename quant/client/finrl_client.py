@@ -47,12 +47,12 @@ class FinRLClient:
         if self.model_path and os.path.exists(self.model_path):
             self.load_model(self.model_path)
     
-    def train_model(self, tickers: List[str], start_date: str, end_date: str):
+    def train_model(self, symbols: List[str], start_date: str, end_date: str):
         
         df = download_data(
             start_date=start_date,
             end_date=end_date,
-            ticker_list=tickers
+            symbol_list=symbols
         )
         
         # Feature engineering

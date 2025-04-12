@@ -20,14 +20,14 @@ class UtilsTest(unittest.TestCase):
         columns = df.columns.tolist()
         print (f"DataFrame columns: {columns}")
 
-    def test_get_spy500_tickers(self):
+    def test_get_spy500_symbols(self):
         # Test if the function returns a list
-        tickers = get_spy500_tickers()
+        symbols = get_spy500_symbols()
         
-        print (f"SP500 tickers: {tickers}")
+        print (f"SP500 symbols: {symbols}")
 
         # Test if the list is not empty
-        self.assertGreater(len(tickers), 0)
+        self.assertGreater(len(symbols), 0)
         
 
 

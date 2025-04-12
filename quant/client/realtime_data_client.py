@@ -34,7 +34,7 @@ class PolygonClient:
                 
         """
         
-        symbols  = self.rest_client.list_tickers(
+        symbols  = self.rest_client.list_symbols(
             market=market,
             active=active,
             order=order,

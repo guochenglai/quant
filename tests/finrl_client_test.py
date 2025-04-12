@@ -24,10 +24,10 @@ class TestFinRLClient(unittest.TestCase):
         pass
     
     def test_train_model(self):
-       tickets = ["AAPL"]
+       symbols = ["AAPL"]
        start_date = (datetime.now() - pd.DateOffset(years=1)).strftime('%Y-%m-%d')
        end_date = datetime.now().strftime('%Y-%m-%d')
-       self.client.train_model(tickers=tickets, start_date=start_date, end_date=end_date)
+       self.client.train_model(symbols=symbols, start_date=start_date, end_date=end_date)
 
 if __name__ == "__main__":
     unittest.main()
