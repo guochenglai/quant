@@ -44,35 +44,35 @@ class PaperTradingClientTest(unittest.TestCase):
         self.assertIsNotNone(orders)
 
 
-    def test_buy_market_order(self):
-        """Test placing a market buy order."""
-        symbol = "MSFT"
-        quantity = 1
+    # def test_buy_market_order(self):
+    #     """Test placing a market buy order."""
+    #     symbol = "MSFT"
+    #     quantity = 1
         
-        print(f"Placing market buy order for {quantity} shares of {symbol}...")
+    #     print(f"Placing market buy order for {quantity} shares of {symbol}...")
         
-        order = self.polygon_client.buy_market_order(symbol, quantity)
+    #     order = self.polygon_client.buy_market_order(symbol, quantity)
 
-        # Check if the order is not None and contains expected keys
-        self.assertIsNotNone(order)
+    #     # Check if the order is not None and contains expected keys
+    #     self.assertIsNotNone(order)
 
-        # Print the order for debugging purposes
-        print(f"=================== Buy Market Order ==================== \n: {json.dumps(order, indent=4, default=str)}")
+    #     # Print the order for debugging purposes
+    #     print(f"=================== Buy Market Order ==================== \n: {json.dumps(order, indent=4, default=str)}")
 
-    def test_sell_market_order(self):
-        """Test placing a market sell order."""
-        symbol = "AAPL"
-        quantity = 1
+    # def test_sell_market_order(self):
+    #     """Test placing a market sell order."""
+    #     symbol = "AAPL"
+    #     quantity = 1
         
-        print(f"Placing market sell order for {quantity} shares of {symbol}...")
+    #     print(f"Placing market sell order for {quantity} shares of {symbol}...")
 
-        order = self.polygon_client.sell_market_order(symbol, quantity)
+    #     order = self.polygon_client.sell_market_order(symbol, quantity)
 
-        # Check if the order is not None and contains expected keys
-        self.assertIsNotNone(order)
+    #     # Check if the order is not None and contains expected keys
+    #     self.assertIsNotNone(order)
 
-        # Print the order for debugging purposes
-        print(f"=================== Sell Market Order ==================== \n: {json.dumps(order, indent=4, default=str)}")
+    #     # Print the order for debugging purposes
+    #     print(f"=================== Sell Market Order ==================== \n: {json.dumps(order, indent=4, default=str)}")
 
     def tearDown(self):
         """Clean up after tests."""

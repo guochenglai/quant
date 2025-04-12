@@ -7,9 +7,11 @@ from finrl.meta.preprocessor.preprocessors import FeatureEngineer
 from finrl.config import INDICATORS
 from stable_baselines3 import PPO
 from quant.utils.utils import *
+from quant.constants import *
 from quant.utils.logging_config import setup_logger
 from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.vec_env import DummyVecEnv
+from quant.client.history_data_client import HistoryDataClient
 import os
 
 
@@ -37,6 +39,7 @@ class FinRLClient:
         self.model_dir = model_dir
         self.model_path = model_path
         self.model = None
+        self.history_data_client = HistoryDataClient()
         
         # Create directories if they don't exist
         os.makedirs(self.data_dir, exist_ok=True)
@@ -47,12 +50,12 @@ class FinRLClient:
         if self.model_path and os.path.exists(self.model_path):
             self.load_model(self.model_path)
     
-    def train_model(self, symbols: List[str], start_date: str, end_date: str):
+    def train_model(self, symbol: str, start_date: str, end_date: str):
         
-        df = download_data(
+        df = self.history_data_client.fetch_data(
             start_date=start_date,
             end_date=end_date,
-            symbol_list=symbols
+            symbol=symbol
         )
         
         # Feature engineering
@@ -337,8 +340,7 @@ class FinRLClient:
             str: Path where model was saved
         """
         try:
-            model_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            path = os.path.join(model_dir, "model", model_name)
+            path = os.path.join(project_root_dir, "../model", model_name)
             os.makedirs(os.path.dirname(path), exist_ok=True)
             logger.info(f"Saving model to {path}")
             model.save(path)

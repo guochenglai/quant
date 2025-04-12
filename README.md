@@ -41,6 +41,6 @@
 
 <h2 align="center"> Try it out </h2>
 
-- Run `poetry run python .\test\utils_test.py` to test all the utils in the project
-- Run `poetry run python .\test\finrl_client_test.py.py` to train model
-- Run `poetry run python .\tests\futu_client_test.py.py` to test setup with Futu
+- Run `poetry run python .\tests\history_data_client_test.py` download all spy 500 stocks and save to data directory
+- Run `poetry run python .\test\finrl_client_test.py` to train model of a specific stock and save it to the model dir
+- Run `poetry run python .\tests\tests\polygon_client_test.py` poloygon client to get realtime data
