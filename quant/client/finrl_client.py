@@ -20,7 +20,6 @@ class FinRLClient:
     
     def __init__(self, 
                  data_dir: str = "data", 
-                 model_path: str = None,
                  logger=None):
         """
         Initialize the FinRL client.
@@ -32,17 +31,13 @@ class FinRLClient:
         """
         self.logger = logger or logging.getLogger(__name__)
         self.data_dir = data_dir
-        self.model_path = model_path
         self.model = None
         self.history_data_client = HistoryDataClient(logger=self.logger)
         
         # Create directories if they don't exist
         os.makedirs(self.data_dir, exist_ok=True)
         self._config_gpu()
-        
-        # Load model if path is provided
-        if self.model_path and os.path.exists(self.model_path):
-            self.load_model(self.model_path)
+      
     
     def train_model(self, symbol: str, start_date: str, end_date: str):
         
@@ -52,11 +47,11 @@ class FinRLClient:
             symbol=symbol
         )
         
-        # Feature engineering
-        df = self._feature_engineering(df)
+        # Transform raw price data into features that include technical indicators. such as MACD, RSI, etc.
+        featured_df = self._feature_engineering(df)
         
-        # Create environment
-        stock_env = self._create_environment(df)
+        # Simulates the financial market, provides states, executes actions, and calculates rewards.
+        stock_env = self._create_environment(featured_df)
         
         # Train model
         model = self._train_model(stock_env)
@@ -85,7 +80,9 @@ class FinRLClient:
     
     def _feature_engineering(self, df, use_indicators=True, indicator_list=None):
         """
-        Perform feature engineering on the dataset.
+        Perform feature engineering on the dataset. 
+        Transform raw price data into features that include technical indicators.
+        Such as MACD, RSI, etc. These indicators are used to understand the market trends and make predictions.
         
         Args:
             df (pandas.DataFrame): Stock data
@@ -117,6 +114,7 @@ class FinRLClient:
                         tech_indicator_list=None):
         """
         Create a stock trading environment for reinforcement learning.
+        Simulates the financial market, provides states, executes actions, and calculates rewards.
         
         Args:
             df (pandas.DataFrame): Processed stock data
