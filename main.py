@@ -8,6 +8,7 @@ import pandas as pd
 from quant.client.paper_trading_client import PaperTradingClient
 from quant.client.finrl_client import FinRLClient
 from quant.client.realtime_data_client import PolygonClient
+from quant.client.decision_engine import DecisionEngine
 from quant.utils.utils import get_spy500_symbols
 from quant.logger import configure_logger
 
@@ -92,6 +93,7 @@ def main():
         paper_trading_client = PaperTradingClient(logger=logger)
         finrl_client = FinRLClient(logger=logger)
         polygon_client = PolygonClient(logger=logger)
+        decision_engine = DecisionEngine(logger=logger)
         
         # Get account information
         account_info = paper_trading_client.get_account_info()
@@ -147,7 +149,7 @@ def main():
                             current_position_qty = float(portfolio[symbol].get('qty', 0))
                         
                         # Get model's recommendation
-                        action, confidence, target_qty = finrl_client.get_action(
+                        action, confidence, target_qty = decision_engine.get_action(
                             symbol=symbol,
                             market_data=market_data[symbol],
                             current_position=current_position_qty
