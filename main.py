@@ -91,13 +91,8 @@ def main():
     # Initialize clients with the logger
     try:
         paper_trading_client = PaperTradingClient(logger=logger)
-        finrl_client = FinRLClient(logger=logger)
         polygon_client = PolygonClient(logger=logger)
         decision_engine = DecisionEngine(logger=logger)
-        
-        # Get account information
-        account_info = paper_trading_client.get_account_info()
-        logger.info(f"Trading account initialized with ${account_info.get('cash', 0)} cash available")
         
         # Get S&P 500 symbols and limit to a manageable number
         # Taking first 10 symbols for easier testing - increase as needed
@@ -112,6 +107,9 @@ def main():
                     logger.info("Market is closed. Waiting...")
                     time.sleep(60)  # Check every minute if market is closed
                     continue
+                # Get account information
+                account_info = paper_trading_client.get_account_info()
+                logger.info(f"Trading account initialized with ${account_info.get('cash', 0)} cash available")
                 
                 tradable_symbols = []
                 for symbol in symbols:
