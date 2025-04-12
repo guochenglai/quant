@@ -53,7 +53,7 @@ class FinRLClient:
         # Simulates the financial market, provides states, executes actions, and calculates rewards.
         stock_env = self._create_environment(featured_df)
         
-        # Train model
+        # Use ppo algorithm to train a reinforcement learning model.
         model = self._train_model(stock_env)
         
         # Save model
@@ -115,7 +115,9 @@ class FinRLClient:
         """
         Create a stock trading environment for reinforcement learning.
         Simulates the financial market, provides states, executes actions, and calculates rewards.
-        
+        This is the core of the reinforcement learning process.
+
+
         Args:
             df (pandas.DataFrame): Processed stock data
             stock_dim (int): Number of stocks to trade
@@ -175,9 +177,13 @@ class FinRLClient:
             self.logger.error(f"Error creating environment: {str(e)}")
             raise
 
+
     def _train_model(self, env, total_timesteps=10000):
         """
-        Train a reinforcement learning model.
+            Uses the PPO (Proximal Policy Optimization) algorithm from stable-baselines3.  
+            PPO is a popular policy gradient method suitable for continuous action spaces (e.g., deciding how many shares to buy).  
+            `MlpPolicy` is a multi-layer perceptron (MLP) policy network.  
+            `total_timesteps` determines the number of training iterations — more iterations may improve model performance but require more time.
         
         Args:
             env (gym.Env): Trading environment
