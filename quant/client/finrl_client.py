@@ -39,27 +39,36 @@ class FinRLClient:
         self._config_gpu()
       
     
-    def train_model(self, symbol: str, start_date: str, end_date: str):
-        
-        df = self.history_data_client.fetch_data(
-            start_date=start_date,
-            end_date=end_date,
-            symbol=symbol
-        )
-        
-        # Transform raw price data into features that include technical indicators. such as MACD, RSI, etc.
+    def train_model(self, symbols: Union[str, List[str]], start_date: str, end_date: str):
+        """
+        Train a reinforcement learning model on stock data.
+
+        Args:
+            symbols (str or list): Stock symbol or list of stock symbols.
+            start_date (str): Start date for training.
+            end_date (str): End date for training.
+        """
+        # Determine if multiple stocks are being provided
+        if isinstance(symbols, list) and len(symbols) > 1:
+            stock_dim = len(symbols)
+            df = self.history_data_client.batch_fetch_data(symbols, start_date=start_date, end_date=end_date)
+        else:
+            stock_dim = 1
+            if isinstance(symbols, list):
+                symbols = symbols[0]
+            df = self.history_data_client.fetch_data(symbol=symbols, start_date=start_date, end_date=end_date)
+
+        # Perform feature engineering
         featured_df = self._feature_engineering(df)
         
-        # Simulates the financial market, provides states, executes actions, and calculates rewards.
-        stock_env = self._create_environment(featured_df)
+        # Create environment with the correct stock_dim
+        stock_env = self._create_environment(featured_df, stock_dim=stock_dim)
         
-        # Use ppo algorithm to train a reinforcement learning model.
+        # Train the model using PPO algorithm
         model = self._train_model(stock_env)
         
-        # Save model
+        # Save and set the model
         self._save_model(model)        
-        
-        # Set the model
         self.model = model
 
     def _config_gpu(self):
