@@ -32,7 +32,7 @@ class TestFinRLClient(unittest.TestCase):
     
     def test_train_model(self):
        self.logger.info("Testing train_model method")
-       symbols = ["AAPL"]
+       symbols = ["AAPL", "MSFT"]
        start_date = (datetime.now() - pd.DateOffset(years=1)).strftime('%Y-%m-%d')
        end_date = datetime.now().strftime('%Y-%m-%d')
        self.client.train_model(symbols=symbols, start_date=start_date, end_date=end_date)
