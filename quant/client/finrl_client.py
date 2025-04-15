@@ -54,9 +54,7 @@ class FinRLClient:
             df = self.history_data_client.batch_fetch_data(symbols, start_date=start_date, end_date=end_date)
         else:
             stock_dim = 1
-            if isinstance(symbols, list):
-                symbols = symbols[0]
-            df = self.history_data_client.fetch_data(symbol=symbols, start_date=start_date, end_date=end_date)
+            df = self.history_data_client.fetch_data(symbol=symbols[0], start_date=start_date, end_date=end_date)
 
         # Perform feature engineering
         featured_df = self._feature_engineering(df)
