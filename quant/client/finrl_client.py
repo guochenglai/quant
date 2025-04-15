@@ -39,34 +39,47 @@ class FinRLClient:
         self._config_gpu()
       
     
-    def train_model(self, symbols: Union[str, List[str]], start_date: str, end_date: str):
+    def train_model(self, symbols: List[str], start_date: str, end_date: str):
         """
         Train a reinforcement learning model on stock data.
 
         Args:
-            symbols (str or list): Stock symbol or list of stock symbols.
+            symbols list: list of stock symbols.
             start_date (str): Start date for training.
             end_date (str): End date for training.
         """
-        # Determine if multiple stocks are being provided
-        if isinstance(symbols, list) and len(symbols) > 1:
-            stock_dim = len(symbols)
-            df = self.history_data_client.batch_fetch_data(symbols, start_date=start_date, end_date=end_date)
-        else:
-            stock_dim = 1
-            df = self.history_data_client.fetch_data(symbol=symbols[0], start_date=start_date, end_date=end_date)
-
+        stock_dim = len(symbols)
+        df = self.history_data_client.batch_fetch_data(symbols, start_date=start_date, end_date=end_date)
+    
         # Perform feature engineering
         featured_df = self._feature_engineering(df)
-        
-        # Create environment with the correct stock_dim
+
+        # --- Start: Preprocess DataFrame index for StockTradingEnv ---
+        self.logger.info("Preprocessing DataFrame index for StockTradingEnv compatibility.")
+        # Ensure sorting (FeatureEngineer should handle this, but double-check)
+        featured_df = featured_df.sort_values(by=['date', 'tic']).reset_index(drop=True)
+
+        # Create a mapping from date to a sequential day index
+        unique_dates = featured_df.date.unique()
+        date_to_day_index = {date: i for i, date in enumerate(unique_dates)}
+
+        # Add the day index column
+        featured_df['day_index'] = featured_df['date'].map(date_to_day_index)
+
+        # Set the DataFrame index to the day index
+        # Keep 'date' and 'tic' as columns for potential internal use by the env or analysis
+        featured_df = featured_df.set_index('day_index', drop=False)
+        self.logger.info("DataFrame index set to sequential day number.")
+        # --- End: Preprocess DataFrame index ---
+
+        # Create environment with the correct stock_dim and preprocessed df
         stock_env = self._create_environment(featured_df, stock_dim=stock_dim)
-        
+
         # Train the model using PPO algorithm
         model = self._train_model(stock_env)
-        
+
         # Save and set the model
-        self._save_model(model)        
+        self._save_model(model)
         self.model = model
 
     def _config_gpu(self):
@@ -126,7 +139,7 @@ class FinRLClient:
 
 
         Args:
-            df (pandas.DataFrame): Processed stock data
+            df (pandas.DataFrame): Processed stock data (MUST have index set to sequential day number)
             stock_dim (int): Number of stocks to trade
             hmax (int): Maximum number of shares to trade
             initial_amount (float): Initial investment amount
