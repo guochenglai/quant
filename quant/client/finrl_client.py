@@ -59,16 +59,7 @@ class FinRLClient:
         # Ensure sorting (FeatureEngineer should handle this, but double-check)
         featured_df = featured_df.sort_values(by=['date', 'tic']).reset_index(drop=True)
 
-        # Create a mapping from date to a sequential day index
-        unique_dates = featured_df.date.unique()
-        date_to_day_index = {date: i for i, date in enumerate(unique_dates)}
-
-        # Add the day index column
-        featured_df['day_index'] = featured_df['date'].map(date_to_day_index)
-
-        # Set the DataFrame index to the day index
-        # Keep 'date' and 'tic' as columns for potential internal use by the env or analysis
-        featured_df = featured_df.set_index('day_index', drop=False)
+        featured_df.index = featured_df.date.factorize()[0]
         self.logger.info("DataFrame index set to sequential day number.")
         # --- End: Preprocess DataFrame index ---
 
