@@ -44,7 +44,10 @@ def main():
         # Install torch directly with pip to bypass Poetry's source resolution
         subprocess.run(["pip", "install", "torch==2.2.2"], check=True)
 
+    print("Resolving dependencies...")
     subprocess.run(["poetry", "lock"], check=True)
+    
+    print("Installing dependencies...")
     subprocess.run(["poetry", "install"], check=True)
     
     print("Installation complete!")
