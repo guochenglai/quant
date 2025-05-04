@@ -21,6 +21,16 @@ def main():
         # Create the virtual environment and install
         subprocess.run(["poetry", "env", "use", "python"], check=True)
 
+    # Check if Linux
+    elif platform.system() == "Linux":
+        print("Installing with Linux CUDA dependencies...")
+        
+        # Copy the Linux config file
+        shutil.copy("pyproject-linux.toml", "pyproject.toml")
+        
+        # Create the virtual environment and install
+        subprocess.run(["poetry", "env", "use", "python"], check=True)
+
     else:
         print("Installing with Mac/standard PyTorch...")
         
