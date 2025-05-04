@@ -9,6 +9,8 @@ def main():
     if os.path.exists("pyproject.toml"):
         os.remove("pyproject.toml")
     
+    print("Setting up the environment... system:", platform.system())
+
     # Check if Windows
     if platform.system() == "Windows":
         print("Installing with Windows CUDA dependencies...")
