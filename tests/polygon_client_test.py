@@ -1,10 +1,11 @@
 import unittest
 import os
-import sys
 from quant.logger import configure_logger
+import sys 
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
 
-# Add parent directory to path to import the module
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from quant.client.realtime_data_client import PolygonClient
 
 class PolygonClientTest(unittest.TestCase):

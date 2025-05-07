@@ -2,11 +2,13 @@ import unittest
 from datetime import datetime
 import pandas as pd
 import os
-import sys
 from quant.logger import configure_logger
 
-# Add the parent directory to sys.path to import utils
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import sys 
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
 from quant.utils.utils import get_spy500_symbols
 
 class UtilsTest(unittest.TestCase):

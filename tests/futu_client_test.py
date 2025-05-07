@@ -1,13 +1,15 @@
 import unittest
 from unittest.mock import patch, MagicMock, call
 import pandas as pd
-import sys
+import sys 
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
 import os
 import time
 from quant.logger import configure_logger
 
-# Add parent directory to path to import the module
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from quant.client.futu_client import FutuClient
 from futu import OpenQuoteContext, OpenUSTradeContext, TrdEnv, OrderType, TrdSide, TimeInForce
 

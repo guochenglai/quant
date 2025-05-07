@@ -2,6 +2,11 @@ import unittest
 import os, json
 from quant.client.paper_trading_client import PaperTradingClient
 from quant.logger import configure_logger
+import sys 
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
 
 class PaperTradingClientTest(unittest.TestCase):
     

@@ -1,11 +1,13 @@
 import unittest
-import sys
 import os
 from datetime import datetime, timedelta
 from quant.logger import configure_logger
 
-# Add parent directory to path to import the module
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import sys 
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
 from quant.client.history_data_client import HistoryDataClient
 
 class TestHistoryDataClient(unittest.TestCase):
