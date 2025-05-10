@@ -111,17 +111,9 @@ def main():
                 account_info = paper_trading_client.get_account_info()
                 logger.info(f"Trading account initialized with ${account_info.get('cash', 0)} cash available")
                 
-                tradable_symbols = []
-                for symbol in symbols:
-                    if paper_trading_client.is_tradeable(symbol):
-                        tradable_symbols.append(symbol)
-                    
-                symbols = tradable_symbols
-                logger.info(f"All tradable symbols: {len(symbols)} symbols : [{symbols}]")
-                
                 logger.info("Checking for trading opportunities...")
-                
-                # Get current market data using Polygon client
+                symbols = all_symbols[:5] # Limit to first 5 symbols for testing
+
                 market_data = get_market_data(symbols, polygon_client, logger)
                 
                 # Get current positions
