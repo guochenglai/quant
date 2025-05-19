@@ -1,10 +1,36 @@
-import unittest
-import os, json
+# --- Start of modified diagnostic code ---
+import sys
+import os
 
-import sys 
+print(f"DEBUG: paper_trading_client_test.py is starting.")
+print(f"DEBUG: Python executable: {sys.executable}")
+print("DEBUG: Current sys.path:")
+for p in sys.path:
+    print(f"DEBUG:   {p}")
+print("DEBUG: --- End of sys.path ---")
+print(f"DEBUG: Current VIRTUAL_ENV: {os.environ.get('VIRTUAL_ENV')}")
+
+try:
+    import alpaca
+    print("DEBUG: Successfully imported 'alpaca' module directly in test script. Alpaca SDK version:", getattr(alpaca, '__version__', 'unknown'))
+except ModuleNotFoundError as e:
+    print(f"DEBUG: Failed to import 'alpaca' module directly in test script: {e}")
+    print("DEBUG: This script requires 'alpaca-py' to be installed in the Python environment.")
+    print("DEBUG: Please ensure 'alpaca-py' is listed in your pyproject.toml and installed via Poetry.")
+    print(f"DEBUG: VIRTUAL_ENV is: {os.environ.get('VIRTUAL_ENV')}. If 'python' in your shell still points to system Python (e.g., /usr/bin/python), your shell's PATH might not prioritize the virtual environment's Python.")
+    print("DEBUG: Crucially, ensure you are running tests using the Python interpreter from your Poetry virtual environment.")
+    print("DEBUG: Recommended command: 'poetry run python -m unittest tests.paper_trading_client_test.py'")
+    print("DEBUG: Alternatively, investigate why 'poetry shell' is not making the venv Python the default (check 'which python' and shell aliases/functions).")
+# --- End of modified diagnostic code ---
+
+import unittest
+
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
+    print(f"DEBUG: Added project root to sys.path: {project_root}")
+
+
 from quant.client.paper_trading_client import PaperTradingClient
 from quant.logger import configure_logger
 
