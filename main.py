@@ -88,46 +88,42 @@ def main():
     """Main function to run the trading system."""
     logger.info("Starting quantitative trading system")
     
-    # Initialize clients with the logger
     try:
         paper_trading_client = PaperTradingClient(logger=logger)
         polygon_client = PolygonClient(logger=logger)
         decision_engine = DecisionEngine(logger=logger)
         
-        # Get S&P 500 symbols and limit to a manageable number
-        # Taking first 10 symbols for easier testing - increase as needed
-        all_symbols = get_spy500_symbols(logger)
-        logger.info(f"All S&P 500 symbols fetched: {len(all_symbols)} symbols : [{all_symbols}]")
+        spy500_symbols = get_spy500_symbols(logger)
+        logger.info(f"All S&P 500 symbols fetched: {len(spy500_symbols)} symbols : [{spy500_symbols}]")
         
         # Main trading loop
         while True:
             try:
                 # Skip if market is closed
                 if not is_market_open():
-                    logger.info("Market is closed. Waiting...")
-                    time.sleep(60)  # Check every minute if market is closed
+                    logger.info("Market is closed. Waiting 2 minutes...")
+                    time.sleep(120)  
                     continue
-                # Get account information
+                
+                
                 account_info = paper_trading_client.get_account_info()
                 logger.info(f"Trading account initialized with ${account_info.get('cash', 0)} cash available")
                 
-                logger.info("Checking for trading opportunities...")
-                symbols = all_symbols[:5] # Limit to first 5 symbols for testing
-
-                market_data = get_market_data(symbols, polygon_client, logger)
+                market_data = get_market_data(spy500_symbols, polygon_client, logger)
                 
                 # Get current positions
                 portfolio = {}
-                for symbol in symbols:
+                for symbol in spy500_symbols:
                     try:
                         position, portfolio = paper_trading_client.get_positions(symbol)
                         if position:
                             portfolio[symbol] = position
+                        time.sleep(5) 
                     except Exception as e:
                         logger.error(f"Error getting position for {symbol}: {str(e)}")
                 
                 # Ask model for decisions for each symbol
-                for symbol in symbols:
+                for symbol in spy500_symbols:
                     try:
                         # Skip symbols with missing market data
                         if symbol not in market_data or market_data[symbol]['price'] is None:
@@ -166,12 +162,11 @@ def main():
                     except Exception as e:
                         logger.error(f"Error processing symbol {symbol}: {str(e)}")
                 
-                # Sleep for 5 seconds before next iteration
-                time.sleep(5)
+                time.sleep(10)
                 
             except Exception as e:
                 logger.error(f"Error in trading loop: {e}")
-                time.sleep(5)  # Continue after error
+                time.sleep(10)  # Continue after error
     
     except Exception as e:
         logger.error(f"Fatal error in main function: {e}")

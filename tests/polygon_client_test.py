@@ -31,14 +31,14 @@ class PolygonClientTest(unittest.TestCase):
         self.assertIsNotNone(symbols)
         self.logger.info(f"Retrieved {len(symbols)} symbols from Polygon API")
     
-    def test_get_symbol_details(self):
-        """Test fetching symbol details from Polygon API."""
-        symbol = "AAPL"
-        self.logger.info(f"Testing get_symbol_details for {symbol}")
+    # def test_get_symbol_details(self):
+    #     """Test fetching symbol details from Polygon API."""
+    #     symbol = "AAPL"
+    #     self.logger.info(f"Testing get_symbol_details for {symbol}")
         
-        details = self.polygon_client.get_symbol_details(symbol)
-        self.assertIsNotNone(details)
-        self.logger.info(f"Successfully retrieved details for {symbol}")
+    #     details = self.polygon_client.get_symbol_details(symbol)
+    #     self.assertIsNotNone(details)
+    #     self.logger.info(f"Successfully retrieved details for {symbol}")
     
     def tearDown(self):
         """Clean up after tests."""

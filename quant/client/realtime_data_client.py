@@ -49,7 +49,7 @@ class PolygonClient:
                 limit=limit,
                 sort=sort)
             
-            self.logger.debug(f"Received {len(symbols)} symbols from Polygon API")
+            self.logger.info(f"Received {len(symbols)} symbols from Polygon API")
             return symbols
         except Exception as e:
             self.logger.error(f"Error fetching symbol list: {str(e)}")
