@@ -6,7 +6,7 @@ authors = ["Steven Guo <gcl272633743@163.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.11,<3.12"
+python = ">=3.11"
 finrl = {git = "https://github.com/AI4Finance-Foundation/FinRL.git"}
 yfinance = "^0.2.55"
 stockstats = "^0.5"
