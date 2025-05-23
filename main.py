@@ -36,54 +36,6 @@ def is_market_open():
     
     return market_open <= now <= market_close
 
-def get_market_data(symbols, polygon_client, logger):
-    """
-    Get current market data for the specified symbols using Polygon API.
-    
-    Args:
-        symbols (list): List of stock symbols
-        polygon_client (PolygonClient): Instance of the Polygon client
-        logger (logging.Logger): Logger for this function
-        
-    Returns:
-        dict: Dictionary containing market data for each symbol
-    """
-    market_data = {}
-    for symbol in symbols:
-        try:
-            # Get symbol details from Polygon
-            symbol_details = polygon_client.get_symbol_details(symbol)
-            
-            # Extract relevant information from the response
-            if hasattr(symbol_details, 'results'):
-                price = symbol_details.results.last_trade.price if hasattr(symbol_details.results, 'last_trade') else None
-                volume = symbol_details.results.day.volume if hasattr(symbol_details.results, 'day') else None
-                
-                market_data[symbol] = {
-                    'price': price,
-                    'volume': volume,
-                    'market_cap': symbol_details.results.market_cap if hasattr(symbol_details.results, 'market_cap') else None,
-                    'name': symbol_details.results.name if hasattr(symbol_details.results, 'name') else None
-                }
-            else:
-                logger.warning(f"No data available for {symbol}")
-                market_data[symbol] = {
-                    'price': None,
-                    'volume': None,
-                    'market_cap': None,
-                    'name': None
-                }
-        except Exception as e:
-            logger.error(f"Error getting market data for {symbol}: {str(e)}")
-            market_data[symbol] = {
-                'price': None,
-                'volume': None,
-                'market_cap': None,
-                'name': None
-            }
-    
-    return market_data
-
 def main():
     """Main function to run the trading system."""
     logger.info("Starting quantitative trading system")
@@ -93,7 +45,8 @@ def main():
         polygon_client = PolygonClient(logger=logger)
         decision_engine = DecisionEngine(logger=logger)
         
-        spy500_symbols = get_spy500_symbols(logger)
+        # spy500_symbols = get_spy500_symbols(logger)
+        spy500_symbols = ["AAPL", "MSFT", "GOOGL", "AMZN", "TSLA"]  # Example symbols for testing
         logger.info(f"All S&P 500 symbols fetched: {len(spy500_symbols)} symbols : [{spy500_symbols}]")
         
         # Main trading loop
@@ -109,20 +62,14 @@ def main():
                 account_info = paper_trading_client.get_account_info()
                 logger.info(f"Trading account initialized with ${account_info.get('cash', 0)} cash available")
                 
-                market_data = get_market_data(spy500_symbols, polygon_client, logger)
+                # Get market data for S&P 500 symbols
+                market_data = _get_market_data(spy500_symbols, polygon_client, logger)
                 
-                # Get current positions
-                portfolio = {}
-                for symbol in spy500_symbols:
-                    try:
-                        position, portfolio = paper_trading_client.get_positions(symbol)
-                        if position:
-                            portfolio[symbol] = position
-                        time.sleep(5) 
-                    except Exception as e:
-                        logger.error(f"Error getting position for {symbol}: {str(e)}")
+                # Get current positions 
+                portfolio = _get_positions(spy500_symbols, paper_trading_client, logger)
                 
                 # Ask model for decisions for each symbol
+                logger.info(f"======= Trading for sybmbols: {spy500_symbols} =======")
                 for symbol in spy500_symbols:
                     try:
                         # Skip symbols with missing market data
@@ -162,14 +109,80 @@ def main():
                     except Exception as e:
                         logger.error(f"Error processing symbol {symbol}: {str(e)}")
                 
-                time.sleep(10)
-                
+                time.sleep(15)
+                logger.info(f"Sleeped for 15 seconds to avoid hitting API too fast for trading loop")
             except Exception as e:
                 logger.error(f"Error in trading loop: {e}")
-                time.sleep(10)  # Continue after error
+                time.sleep(15)  # Continue after error
     
     except Exception as e:
         logger.error(f"Fatal error in main function: {e}")
+
+
+def _get_positions(symbols, paper_trading_client, logger):
+
+    portfolio = {}
+    for symbol in symbols:
+        try:
+            position, portfolio = paper_trading_client.get_positions(symbol)
+            if position:
+                portfolio[symbol] = position
+            time.sleep(15) 
+            logger.info(f"Sleeped for 15 seconds to avoid hitting API too fast, for getting positions")
+        except Exception as e:
+            logger.error(f"Error getting position for {symbol}: {str(e)}")
+    return portfolio
+
+def _get_market_data(symbols, polygon_client, logger):
+    """
+    Get current market data for the specified symbols using Polygon API.
+    
+    Args:
+        symbols (list): List of stock symbols
+        polygon_client (PolygonClient): Instance of the Polygon client
+        logger (logging.Logger): Logger for this function
+        
+    Returns:
+        dict: Dictionary containing market data for each symbol
+    """
+    market_data = {}
+    for symbol in symbols:
+        try:
+            # Get symbol details from Polygon
+            symbol_details = polygon_client.get_symbol_details(symbol)
+            
+            # Extract relevant information from the response
+            if hasattr(symbol_details, 'results'):
+                price = symbol_details.results.last_trade.price if hasattr(symbol_details.results, 'last_trade') else None
+                volume = symbol_details.results.day.volume if hasattr(symbol_details.results, 'day') else None
+                
+                market_data[symbol] = {
+                    'price': price,
+                    'volume': volume,
+                    'market_cap': symbol_details.results.market_cap if hasattr(symbol_details.results, 'market_cap') else None,
+                    'name': symbol_details.results.name if hasattr(symbol_details.results, 'name') else None
+                }
+            else:
+                logger.warning(f"No data available for {symbol}")
+                market_data[symbol] = {
+                    'price': None,
+                    'volume': None,
+                    'market_cap': None,
+                    'name': None
+                }
+            time.sleep(15) # Rate limit to avoid hitting API too fast
+            logger.info(f"Sleeped for 10 seconds to avoid hitting API too fast, for getting market data")
+        except Exception as e:
+            logger.error(f"Error getting market data for {symbol}: {str(e)}")
+            market_data[symbol] = {
+                'price': None,
+                'volume': None,
+                'market_cap': None,
+                'name': None
+            }
+    
+    return market_data
+
 
 if __name__ == "__main__":
     main()

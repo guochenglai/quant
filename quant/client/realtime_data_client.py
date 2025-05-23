@@ -69,7 +69,7 @@ class PolygonClient:
         """
         
         details = self.rest_client.get_ticker_details(symbol)
-        
+        self.logger.info(f"Received details for {symbol}: {details}")   
         return details
 
     def get_symbol_types(self, symbol: str):
