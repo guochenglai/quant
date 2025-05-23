@@ -54,8 +54,8 @@ def main():
             try:
                 # Skip if market is closed
                 if not is_market_open():
-                    logger.info("Market is closed. Waiting 2 minutes...")
-                    time.sleep(120)  
+                    logger.info("Market is closed. Waiting 3 minutes...")
+                    time.sleep(180)  
                     continue
                 
                 
