@@ -152,13 +152,16 @@ def _get_market_data(symbols, polygon_client, logger):
     for symbol in symbols:
         try:
             realtime_data = polygon_client.get_realtime_data(symbol) 
-
+            logger.info(f"Received real-time data for {symbol}: {realtime_data}")
         
+            price = realtime_data.get('ticker', {}).get('lastTrade', {}).get('p')
+            volume = realtime_data.get('ticker', {}).get('day', {}).get('v')
+
             market_data[symbol] = {
-                'price': None,
-                'volume': volume, # Still populate volume if available
-                'market_cap': current_market_cap,
-                'name': current_name
+                'price': price,
+                'volume': volume, 
+                'market_cap': None,
+                'name': symbol 
             }
 
             time.sleep(15) # Rate limit to avoid hitting API too fast
