@@ -64,6 +64,9 @@ def main():
                 
                 # Get market data for S&P 500 symbols
                 market_data = _get_market_data(spy500_symbols, polygon_client, logger)
+                logger.info("=======================================================================")
+                logger.info(f"Market data fetched for {len(market_data)} symbols, with details: {market_data}")
+                logger.info("=======================================================================")
                 
                 # Get current positions 
                 portfolio = _get_positions(spy500_symbols, paper_trading_client, logger)
@@ -148,33 +151,22 @@ def _get_market_data(symbols, polygon_client, logger):
     market_data = {}
     for symbol in symbols:
         try:
-            # Get symbol details from Polygon
-            symbol_details = polygon_client.get_symbol_details(symbol)
-            
-            # Extract relevant information from the response
-            if hasattr(symbol_details, 'results'):
-                price = symbol_details.results.last_trade.price if hasattr(symbol_details.results, 'last_trade') else None
-                volume = symbol_details.results.day.volume if hasattr(symbol_details.results, 'day') else None
-                
-                market_data[symbol] = {
-                    'price': price,
-                    'volume': volume,
-                    'market_cap': symbol_details.results.market_cap if hasattr(symbol_details.results, 'market_cap') else None,
-                    'name': symbol_details.results.name if hasattr(symbol_details.results, 'name') else None
-                }
-            else:
-                logger.warning(f"No data available for {symbol}")
-                market_data[symbol] = {
-                    'price': None,
-                    'volume': None,
-                    'market_cap': None,
-                    'name': None
-                }
+            realtime_data = polygon_client.get_realtime_data(symbol) 
+
+        
+            market_data[symbol] = {
+                'price': None,
+                'volume': volume, # Still populate volume if available
+                'market_cap': current_market_cap,
+                'name': current_name
+            }
+
             time.sleep(15) # Rate limit to avoid hitting API too fast
-            logger.info(f"Sleeped for 10 seconds to avoid hitting API too fast, for getting market data")
+            logger.info(f"Processed market data for {symbol}. Sleeping for 15 seconds...")
+
         except Exception as e:
             logger.error(f"Error getting market data for {symbol}: {str(e)}")
-            market_data[symbol] = {
+            market_data[symbol] = { # Fallback to all None on error
                 'price': None,
                 'volume': None,
                 'market_cap': None,

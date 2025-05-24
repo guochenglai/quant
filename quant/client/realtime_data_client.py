@@ -55,9 +55,35 @@ class PolygonClient:
             self.logger.error(f"Error fetching symbol list: {str(e)}")
             return []
 
+    def get_realtime_data(self, symbol: str):
+        """
+        Get real-time data for a specific symbol from Polygon API.
+        
+        Args:
+            symbol (str): The stock symbol to get real-time data for.
+
+        Returns:
+            dict: A response containing:
+                - request_id (str): ID assigned by the server
+                - results (dict): Real-time data for the specified symbol
+        """
+        
+        try:
+            self.logger.info(f"Getting real-time data for {symbol}...")
+            realtime_data = self.rest_client.get_snapshot_ticker(
+                "stocks",
+                symbol=symbol
+                )
+            self.logger.info(f"Received real-time data for {symbol}: {realtime_data}")
+            return realtime_data
+        except Exception as e:
+            self.logger.error(f"Error getting real-time data for {symbol}: {str(e)}")
+            return None
+
     def get_symbol_details(self, symbol: str):
         """
         Get details of a specific symbol from Polygon API.
+        This is the company info, not the real-time data.
         
         Args:
             symbol (str): The stock symbol to get details for.
@@ -122,9 +148,11 @@ class AlPacaClient:
         self.api_key = os.getenv("APCA_API_KEY_ID")
         self.secret_key = os.getenv("APCA_API_SECRET_KEY")
     
+
     def get_symbol_details(self, symbol: str):
         """
-        Get details of a specific symbol from Alpaca API.
+        Get details of a specific symbol from Alpaca API. This is the company info, 
+        not the real-time data.
         
         Args:
             symbol (str): The stock symbol to get details for.
