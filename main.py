@@ -60,7 +60,7 @@ def main():
                 logger.info(f"Trading account initialized with ${account_info.get('cash', 0)} cash available")
                 
                 # Get market data for S&P 500 symbols
-                market_data = _get_market_data(spy500_symbols, polygon_client, logger)
+                market_data = _get_realtime_data(spy500_symbols, polygon_client, logger)
                 logger.info("=======================================================================")
                 logger.info(f"Market data fetched for {len(market_data)} symbols, with details: {market_data}")
                 logger.info("=======================================================================")
@@ -133,9 +133,9 @@ def _get_positions(symbols, paper_trading_client, logger):
             logger.error(f"Error getting position for {symbol}: {str(e)}")
     return portfolio
 
-def _get_market_data(symbols, polygon_client, logger):
+def _get_realtime_data(symbols, polygon_client, logger):
     """
-    Get current market data for the specified symbols using Polygon API.
+    Get current realtime data for the specified symbols using Polygon API.
     
     Args:
         symbols (list): List of stock symbols
@@ -143,7 +143,7 @@ def _get_market_data(symbols, polygon_client, logger):
         logger (logging.Logger): Logger for this function
         
     Returns:
-        dict: Dictionary containing market data for each symbol
+        dict: Dictionary containing realtime data for each symbol
     """
     market_data = {}
     for symbol in symbols:
@@ -162,10 +162,10 @@ def _get_market_data(symbols, polygon_client, logger):
             }
 
             time.sleep(15) # Rate limit to avoid hitting API too fast
-            logger.info(f"Processed market data for {symbol}. Sleeping for 15 seconds...")
+            logger.info(f"Processed real-time for {symbol}. Sleeping for 15 seconds...")
 
         except Exception as e:
-            logger.error(f"Error getting market data for {symbol}: {str(e)}")
+            logger.error(f"Error getting real-time data for {symbol}: {str(e)}")
             market_data[symbol] = { # Fallback to all None on error
                 'price': None,
                 'volume': None,
