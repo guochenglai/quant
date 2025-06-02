@@ -72,7 +72,7 @@ class PolygonClient:
             self.logger.info(f"Getting real-time data for {symbol}...")
             realtime_data = self.rest_client.get_snapshot_ticker(
                 "stocks",
-                symbol=symbol
+                symbol
                 )
             self.logger.info(f"Received real-time data for {symbol}: {realtime_data}")
             return realtime_data
