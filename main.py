@@ -60,7 +60,7 @@ def main():
                 logger.info(f"Trading account initialized with ${account_info.get('cash', 0)} cash available")
                 
                 # Get market data for S&P 500 symbols
-                market_data = _get_realtime_data(spy500_symbols, polygon_client, logger)
+                market_data = _get_realtime_data(symbols = spy500_symbols, polygon_client = polygon_client, logger = logger)
                 logger.info("=======================================================================")
                 logger.info(f"Market data fetched for {len(market_data)} symbols, with details: {market_data}")
                 logger.info("=======================================================================")
