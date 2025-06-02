@@ -59,10 +59,10 @@ def main():
                 account_info = paper_trading_client.get_account_info()
                 logger.info(f"Trading account initialized with ${account_info.get('cash', 0)} cash available")
                 
-                # Get market data for S&P 500 symbols
-                market_data = _get_realtime_data(symbols = spy500_symbols, polygon_client = polygon_client, logger = logger)
+                # Get realtime data for S&P 500 symbols
+                realtime_data = _get_realtime_data(symbols = spy500_symbols, polygon_client = polygon_client, logger = logger)
                 logger.info("=======================================================================")
-                logger.info(f"Market data fetched for {len(market_data)} symbols, with details: {market_data}")
+                logger.info(f"Realtime data fetched for {len(realtime_data)} symbols, with details: {realtime_data}")
                 logger.info("=======================================================================")
                 
                 # Get current positions 
@@ -73,7 +73,7 @@ def main():
                 for symbol in spy500_symbols:
                     try:
                         # Skip symbols with missing market data
-                        if symbol not in market_data or market_data[symbol]['price'] is None:
+                        if symbol not in realtime_data or realtime_data[symbol]['price'] is None:
                             logger.warning(f"Skipping {symbol} due to missing market data")
                             continue
                         
@@ -84,7 +84,7 @@ def main():
                         # Get model's recommendation
                         action, confidence, target_qty = decision_engine.get_action(
                             symbol=symbol,
-                            market_data=market_data[symbol],
+                            market_data=realtime_data[symbol],
                             current_position=current_position_qty
                         )
                         
